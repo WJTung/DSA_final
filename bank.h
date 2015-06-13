@@ -35,11 +35,11 @@ class Bank{
         pair<int, long long> merge(string,string,string,string);
         pair<int, long long> merge(char*,char*,char*,char*);
         bool deposit(long long);
-        bool withdraw(long long);
-        int transfer(string,long long);
-        int transfer(char*,long long);
+        pair<bool, long long> withdraw(long long);
+        pair<int, long long> transfer(string,long long);
+        pair<int, long long> transfer(char*,long long);
         void find_and_print(string);
         void find_and_print(char*);
         int  search_and_print(string);
         int search_and_print(char*);
-};
+}
