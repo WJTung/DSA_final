@@ -5,11 +5,11 @@
 #include<map>
 
 using namespace std;
-#define MAX 10000
+#define MAX_SCORE 10000
 #define sum1toN(n) ((n)*(n+1)/2)
 
 map<string,bool> account;
-char word[] = {"abcdefg"};								//帳號可能會出現的字元
+char word[] = {"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"};	//帳號可能會出現的字元
 
 int findMinLen(int len,int score){						//在差值=score下，字串最短可能長度
 	for(int i = 1;i < len;i++)
@@ -33,7 +33,7 @@ void add(string &now,int originLen,int nowLen){			//字串>原長時，要窮舉
 	return;
 }
 
-int printAllPostfix(string &origin,string &now,int needed){											//如果score符合 且 now長 > 原字串長，輸出全部可能後綴
+int printAllPostfix(string &origin,string &now,int needed){				//如果score符合 且 now長 > 原字串長，輸出全部可能後綴
 	int finded = 0,originLen = origin.length(),nowLen = now.length();
 	for(string prv = now; prv <= now && finded < needed; prv = now,add(now,originLen,nowLen)){
 		if(!account[now]){
@@ -136,9 +136,10 @@ int printScoreString(string &origin,int score,int needed){									//固定score
 	}
 	return finded;
 }
-void findUncreatedID(string &origin,int needNum){									//窮舉所有可能score
+///////////////////////////////////////////////////////////////////////////////////////////////
+void findUncreatedID(string &origin,int needNum){						//窮舉所有可能score
 	int finded = 0;
-	for(int score = 1;finded < needNum && score < MAX; score++){
+	for(int score = 1;finded < needNum && score < MAX_SCORE; score++){
 		finded += printScoreString(origin,score,needNum - finded);
 	}
 	putchar('\n');
@@ -149,6 +150,7 @@ void findUncreatedID(string &origin,int needNum){									//窮舉所有可能sc
 	return ;
 }
 
+//test main function
 int main(){
 	string s;
 	while(cin>>s){
