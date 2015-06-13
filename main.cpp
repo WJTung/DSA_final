@@ -86,7 +86,10 @@ int main()
             cin>>ID>>num;
             std::pair <int, long long> response;
             response = bank.transfer(ID, num);
-            if(std::get<0>(response) == ID_NOT_FOUND);
+            if(std::get<0>(response) == ID_NOT_FOUND){
+                cout<<"ID "<<ID<<" not found, ";
+                findCreatedID(ID,10,bank);
+            }
             else if(std::get<0>(response) == FAIL)
                 cout<<"fail, "<<std::get<1>(response)<<" dollars only in current account"<<endl;
             if(std::get<0>(response) == SUCCESS)

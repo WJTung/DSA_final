@@ -36,7 +36,7 @@ void add(string &now,int originLen,int nowLen){         //字串>原長時，要
 int printAllPostfix(string &origin,string &now,int needed,Bank &bank){  //如果score符合 且 now長 > 原字串長，輸出全部可能後綴
     int finded = 0,originLen = origin.length(),nowLen = now.length();
     for(string prv = now; prv <= now && finded < needed; prv = now,add(now,originLen,nowLen)){
-        if(!bank.exist(now)){
+        if(!bank.existed(now)){
             cout<<now;
             finded++;
             if(finded < needed)
@@ -56,7 +56,7 @@ int printSameLenString(string &origin,string &now,int newLen,int score,int idx,i
             if(now.length() > origin.length()){
                 finded += printAllPostfix(origin,now,needed - finded,bank);
             }
-            else if(!bank.exist(now)){
+            else if(!bank.existed(now)){
                 cout<<now;
                 finded++;
                 if(finded < needed)
@@ -72,7 +72,7 @@ int printSameLenString(string &origin,string &now,int newLen,int score,int idx,i
             if(now.length() > origin.length()){
                 finded += printAllPostfix(origin,now,needed - finded,bank);
             }
-            else if(!bank.exist(now)){
+            else if(!bank.existed(now)){
                 cout<<now;
                 finded++;
                 if(finded < needed)
@@ -110,7 +110,7 @@ int printSameScoreString(string &origin,int score,int needed,Bank &bank){       
     int finded = 0;
     if(score - sum1toN(len - newLen) == 0){
         string now = origin.substr(0,newLen);
-        if(!bank.exist(now)){
+        if(!bank.existed(now)){
             cout<<origin.substr(0,newLen)<<' ';
             finded++;
         }
@@ -131,7 +131,7 @@ int printSameScoreString(string &origin,int score,int needed,Bank &bank){       
     }
     if(finded < needed && score - sum1toN(newLen - len) == 0){
         for(string prv = now; prv <= now && finded < needed; prv = now,add(now,len,newLen)){
-            if(!bank.exist(now)){
+            if(!bank.existed(now)){
                 cout<<now;
                 finded++;
                 if(finded < needed)
@@ -183,7 +183,7 @@ void findCreatedID(string &origin,int needNum,Bank &bank){                      
     string *IDs = new string[needNum];
     int *scores = new int[needNum];
     int num = 0;
-    for(bank.setBeginIter(); bank.IterIsEnd(); bank.nextIter()){
+    for(bank.setBeginIter(); bank.isEndIter(); bank.nextIter()){
         string nowString = bank.getIter()->ID;
         int nowScore = getScore(origin,nowString);
         if(num < needNum){
@@ -203,6 +203,7 @@ void findCreatedID(string &origin,int needNum,Bank &bank){                      
         if(i < num)
             putchar(',');
     }
+    putchar('\n');
     delete IDs;
     delete scores;
     return ;
