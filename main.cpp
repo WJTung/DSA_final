@@ -17,7 +17,7 @@ int main()
             cin>>ID>>password;
             status_code = bank.login(ID, password);
             if(status_code == ID_NOT_FOUND)
-                cout<<"ID ["<<ID<<"] not found"<<endl;
+                cout<<"ID "<<ID<<" not found"<<endl;
             else if(status_code == WRONG_PS)
                 puts("wrong password");
             else
@@ -40,7 +40,7 @@ int main()
             cin>>ID>>password;
             status_code = bank.deleting(ID, password);
             if(status_code == ID_NOT_FOUND)
-                cout<<"ID ["<<ID<<"] not found"<<endl;
+                cout<<"ID "<<ID<<" not found"<<endl;
             else if(status_code == WRONG_PS)
                 puts("wrong password");
             else
@@ -52,16 +52,16 @@ int main()
             std::pair <int, long long> response;
             response = bank.merge(ID1, password1, ID2, password2);
             if(std::get<0>(response) == ID_NOT_FOUND)
-                cout<<"ID ["<<ID1<<"] not found"<<endl;
+                cout<<"ID "<<ID1<<" not found"<<endl;
             else if(std::get<1>(response) == ID_NOT_FOUND) 
-                cout<<"ID ["<<ID2<<"] not found"<<endl;
+                cout<<"ID "<<ID2<<" not found"<<endl;
             else if(std::get<0>(response) == WRONG_PS) 
                 puts("wrong password1");
             else if(std::get<1>(response) == WRONG_PS) 
                 puts("wrong password2");
             else
             {
-                cout<<"success, ["<<ID1<<"] has ["<<std::get<1>(response)<<"] dollars"<<endl;
+                cout<<"success, "<<ID1<<" has "<<std::get<1>(response)<<" dollars"<<endl;
             }
         }
         else if(command == "deposit")
@@ -79,7 +79,7 @@ int main()
             if(std::get<0>(response) == FAIL)
                 cout<<"fail, "<<std::get<1>(response)<<" dollars only in current account";
             else
-                cout<<"success, ["<<std::get<1>(response)<<"] dollars left in current account";
+                cout<<"success, "<<std::get<1>(response)<<" dollars left in current account";
         }
         else if(command == "transfer")
         {
