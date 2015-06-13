@@ -6,6 +6,7 @@
 using namespace std;
 #define MAX_SCORE 10000
 #define sum1toN(n) ((n)*(n+1)/2)
+#define ABS(x) ((x>0)?x:-x)
 
 map<string,bool> account;
 char word[] = {"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"};   //帳號可能會出現的字元
@@ -36,8 +37,10 @@ int printAllPostfix(string &origin,string &now,int needed,Bank &bank){  //如果
     int finded = 0,originLen = origin.length(),nowLen = now.length();
     for(string prv = now; prv <= now && finded < needed; prv = now,add(now,originLen,nowLen)){
         if(!bank.exist(now)){
-            cout<<now<<' ';
+            cout<<now;
             finded++;
+            if(finded < needed)
+                cout<<',';
         }
     }
     return finded;
@@ -54,8 +57,10 @@ int printSameLenString(string &origin,string &now,int newLen,int score,int idx,i
                 finded += printAllPostfix(origin,now,needed - finded,bank);
             }
             else if(!bank.exist(now)){
-                cout<<now<<' ';
+                cout<<now;
                 finded++;
+                if(finded < needed)
+                    cout<<',';
             }
         }
         if(finded < needed && idx+1 < newLen){
@@ -68,8 +73,10 @@ int printSameLenString(string &origin,string &now,int newLen,int score,int idx,i
                 finded += printAllPostfix(origin,now,needed - finded,bank);
             }
             else if(!bank.exist(now)){
-                cout<<now<<' ';
+                cout<<now;
                 finded++;
+                if(finded < needed)
+                    cout<<',';
             }
         }
         now[idx] = origin[idx];
@@ -125,8 +132,10 @@ int printSameScoreString(string &origin,int score,int needed,Bank &bank){       
     if(finded < needed && score - sum1toN(newLen - len) == 0){
         for(string prv = now; prv <= now && finded < needed; prv = now,add(now,len,newLen)){
             if(!bank.exist(now)){
-                cout<<now<<' ';
+                cout<<now;
                 finded++;
+                if(finded < needed)
+                    cout<<',';
             }
         }
     }
@@ -151,3 +160,51 @@ void findUncreatedID(string &origin,int needNum,Bank &bank){                    
     return ;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////
+int getScore(string &sa,string &sb){
+    int na = sa.length(),nb = sb.length();
+    int score = sum1toN(ABS(na-nb));
+    int minLen = min(na,nb);
+    for(int i = 0;i < minLen;i++){
+        if(sa[i] != sb[i])
+            score += minLen - i;
+    }
+    return score;
+}
+void insertion(int idx,string *IDs,int *scores){
+    if(idx == 0) return ;
+    if(scores[idx-1] > scores[idx] || (scores[idx-1] == scores[idx] && IDs[idx-1] > IDs[idx])){
+        swap(scores[idx-1],scores[idx]);
+        swap(IDs[idx-1],IDs[idx]);
+        insertion(idx-1,IDs,scores);
+    }
+    return ;
+}
+void findCreatedID(string &origin,int needNum,Bank &bank){                          //窮舉已存在帳號,找出score最小ID needNum個
+    string *IDs = new string[needNum];
+    int *scores = new int[needNum];
+    int num = 0;
+    for(bank.setBeginIter(); bank.IterIsEnd(); bank.nextIter()){
+        string nowString = bank.getIter()->ID;
+        int nowScore = getScore(origin,nowString);
+        if(num < needNum){
+            IDs[num] = nowString;
+            scores[num] = nowScore;
+            insertion(num,IDs,scores);
+            num++;
+        }
+        else if(scores[num-1] > nowScore || (scores[num-1] == nowScore && IDs[num-1] > nowString)){
+            IDs[num-1] = nowString;
+            scores[num] = nowScore;
+            insertion(num-1,IDs,scores);
+        }
+    }
+    for(int i = 0;i < num;i++){
+        cout<<IDs[i];
+        if(i < num)
+            putchar(',');
+    }
+    delete IDs;
+    delete scores;
+    return ;
+}
+//////////////////////////////////////////////////////////////////////////////////////////////

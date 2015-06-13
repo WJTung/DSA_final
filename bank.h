@@ -22,27 +22,23 @@ struct Account{
 };
 
 class Bank{
-	private:
-
-	public:
-		Bank(){}
-        bool existed(string);
-        bool existed(char*);
-        int login(string,string);
-        int login(char*,char*);
-        int create(string ,string);
-        int create(char* ,char*);
-        int deleting(string,string);
-        int deleting(char*,char*);
-        pair<int, long long> merge(string,string,string,string);
-        pair<int, long long> merge(char*,char*,char*,char*);
-        int deposit(long long);
-        pair<int, long long> withdraw(long long);
-        pair<int, long long> transfer(string,long long);
-        pair<int, long long> transfer(char*,long long);
-        void find_and_print(string);
-        void find_and_print(char*);
-        int search_and_print(string);
-        int search_and_print(char*);
+    private:
+        Account *iterator;
+    public:
+        Bank(){}
+        bool existed(const string&);
+        int login(const string& , const string&);
+        int create(const string& , const string&);
+        int deleting(const string& , const string&);
+        pair<int, long long> merge(const string& , const string& , const string& , const string&);
+        long long deposit(const long long&);
+        pair<int, long long> withdraw(const long long&);
+        pair<int, long long> transfer(const string& , const long long&);
+        void find_and_print(const string&);
+        int search_and_print(const string&);
+        void setBeginIter(void);
+        bool isEndIter(void);
+        void nextIter(void);
+        const Account* getIter(void);
 };
 void findUncreatedID(string&, int, Bank&);
