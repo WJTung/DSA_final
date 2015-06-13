@@ -194,7 +194,8 @@ bool Bank::isEndIter(void){
     return mapIter == Account_map.end();
 }
 void Bank::nextIter(void){
-    mapIter++;
+    ++mapIter;
+    return ;
 }
 const Account* Bank::getIter(void){
     return &(mapIter->second);

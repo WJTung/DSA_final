@@ -182,10 +182,10 @@ void insertion(int idx,string *IDs,int *scores){
     return ;
 }
 void findCreatedID(string &origin,int needNum,Bank &bank){                          //窮舉已存在帳號,找出score最小ID needNum個
-    string *IDs = new string[needNum];
-    int *scores = new int[needNum];
+    string IDs[needNum];
+    int scores[needNum];
     int num = 0;
-    for(bank.setBeginIter(); bank.isEndIter(); bank.nextIter()){
+    for(bank.setBeginIter(); bank.isEndIter() == false; bank.nextIter()){
         string nowString = bank.getIter()->ID;
         int nowScore = getScore(origin,nowString);
         if(num < needNum){
@@ -202,12 +202,10 @@ void findCreatedID(string &origin,int needNum,Bank &bank){                      
     }
     for(int i = 0;i < num;i++){
         cout<<IDs[i];
-        if(i < num)
+        if(i < num - 1)
             putchar(',');
     }
     putchar('\n');
-    delete IDs;
-    delete scores;
     return ;
 }
 //////////////////////////////////////////////////////////////////////////////////////////////
