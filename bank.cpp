@@ -27,6 +27,7 @@ int Bank::create(const string &ID, const string &password)
     else
     {
         Account new_account(ID, md5(password), 0);
+        new_account.Account_history = new vector<History *>;
         Account_map[ID] = new_account;
         return SUCCESS;
     }
@@ -169,13 +170,9 @@ int Bank::search_and_print(const string &ID)
     map<string,Account>::iterator iter = Account_map.find(ID);
     if(iter == Account_map.end())
         return ID_NOT_FOUND;
-    cout<<"ID found"<<endl;
     vector<History *> *nowHistory = last_login->second.Account_history;
-    cout<<"last_login: "<<last_login->first<<endl;
-    cout<<"size: "<<last_login->second.Account_history->size()<<endl;
     bool noRecord = true;
     for(unsigned int i = 0;i < nowHistory->size();i++){
-        cout<<"i="<<i<<endl;
         if(nowHistory->at(i)->give_ID == ID){
             cout<<"From "<<ID<<' '<<nowHistory->at(i)->money<<endl;
             noRecord = false;
