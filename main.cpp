@@ -19,9 +19,9 @@ int main()
             if(status_code == ID_NOT_FOUND)
                 cout<<"ID ["<<ID<<"] not found"<<endl;
             else if(status_code == WRONG_PS)
-                puts("wrong password\n");
+                puts("wrong password");
             else
-                puts("success\n");
+                puts("success");
         }
         else if(command == "create")
         {
@@ -33,7 +33,7 @@ int main()
                 findUncreatedID(ID, 10, bank);
             }
             else if(status_code == SUCCESS)
-                puts("success\n");
+                puts("success");
         }
         else if(command == "deleting")
         {
@@ -42,9 +42,9 @@ int main()
             if(status_code == ID_NOT_FOUND)
                 cout<<"ID ["<<ID<<"] not found"<<endl;
             else if(status_code == WRONG_PS)
-                puts("wrong password\n");
+                puts("wrong password");
             else
-                puts("success\n");
+                puts("success");
         }
         else if(command == "merge")
         {
@@ -56,9 +56,9 @@ int main()
             else if(std::get<1>(response) == ID_NOT_FOUND) 
                 cout<<"ID ["<<ID2<<"] not found"<<endl;
             else if(std::get<0>(response) == WRONG_PS) 
-                puts("wrong password1\n");
+                puts("wrong password1");
             else if(std::get<1>(response) == WRONG_PS) 
-                puts("wrong password2\n");
+                puts("wrong password2");
             else
             {
                 cout<<"success, ["<<ID1<<"] has ["<<std::get<1>(response)<<"] dollars"<<endl;
@@ -107,7 +107,7 @@ int main()
             if (status_code == ID_NOT_FOUND)
                 cout<<"ID "<<ID<<" not found"<<endl;
             else if (status_code == NO_RECORD)
-                puts("no record\n");
+                puts("no record");
             else if (status_code == SUCCESS);
         }
     }

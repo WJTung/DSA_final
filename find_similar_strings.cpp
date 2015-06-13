@@ -153,10 +153,12 @@ void findUncreatedID(string &origin,int needNum,Bank &bank){                    
         finded += printSameScoreString(origin,score,needNum - finded,bank);
     }
     putchar('\n');
+/*
     if(finded == needNum)
         printf("successfully find %d strings\n",needNum);
     else
         printf("only find %d strings\n",finded);
+*/
     return ;
 }
 ///////////////////////////////////////////////////////////////////////////////////////////////
