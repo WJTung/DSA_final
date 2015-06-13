@@ -77,9 +77,9 @@ int main()
             std::pair <int, long long> response;
             response = bank.withdraw(num);
             if(std::get<0>(response) == FAIL)
-                cout<<"fail, "<<std::get<1>(response)<<" dollars only in current account";
+                cout<<"fail, "<<std::get<1>(response)<<" dollars only in current account"<<endl;
             else
-                cout<<"success, "<<std::get<1>(response)<<" dollars left in current account";
+                cout<<"success, "<<std::get<1>(response)<<" dollars left in current account"<<endl;
         }
         else if(command == "transfer")
         {

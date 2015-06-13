@@ -116,12 +116,12 @@ pair<int, long long> Bank::withdraw(const long long &money)
     if((last_login->second).money >= money)
     {
         (last_login->second).money -= money;
-        std::pair<bool, long long> ans = std::make_pair(SUCCESS, (last_login->second).money);
+        std::pair<int, long long> ans = std::make_pair(SUCCESS, (last_login->second).money);
         return ans;
     }
     else
     {
-        std::pair<bool, long long> ans = std::make_pair(FAIL, (last_login->second).money);
+        std::pair<int, long long> ans = std::make_pair(FAIL, (last_login->second).money);
         return ans;
     }
 }
