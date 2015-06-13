@@ -21,7 +21,7 @@ struct Account{
     string ID;
     string hash_password; 
     long long money;
-    std::vector<History *> Account_history;
+    std::vector<History *> *Account_history;
     Account(string id,string hash,long long m = 0):ID(id),hash_password(hash),money(m){}
     Account(){}
 };
@@ -53,3 +53,4 @@ class Bank{
 };
 void findUncreatedID(string&, int, Bank&);
 void findCreatedID(string&, int, Bank&);
+int match(const string &,const string &, int, int, const int, const int);

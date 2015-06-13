@@ -64,45 +64,48 @@ pair<int, long long> Bank::merge(const string &ID1, const string &password1, con
     {
         int i, hi1=0, hi2=0;
         (i1->second).money += (i2->second).money;
-        int h1 = (i1->second).Account_history.size(); 
-        int h2 = (i2->second).Account_history.size(); 
-        std::vector<History *> new_Account_history;
+        int h1 = (i1->second).Account_history->size(); 
+        int h2 = (i2->second).Account_history->size(); 
+        std::vector<History *> *new_Account_history = new vector<History *>;
         while(hi1 != h1 && hi2 != h2)
         {
-            if(((i1->second).Account_history)[hi1]->transfer_time < ((i2->second).Account_history)[hi2]->transfer_time)
+            if((i1->second).Account_history->at(hi1)->transfer_time < (i2->second).Account_history->at(hi2)->transfer_time)
             {
-                new_Account_history.push_back(((i1->second).Account_history)[hi1]);
+                new_Account_history->push_back((i1->second).Account_history->at(hi1));
                 hi1++;
             }
-            else if(((i1->second).Account_history)[hi1]->transfer_time == ((i2->second).Account_history)[hi2]->transfer_time)
+            else if((i1->second).Account_history->at(hi1)->transfer_time == (i2->second).Account_history->at(hi2)->transfer_time)
             {
-                new_Account_history.push_back(((i1->second).Account_history)[hi1]);
+                new_Account_history->push_back((i1->second).Account_history->at(hi1));
                 hi1++;
                 hi2++;
             }
             else
             {
-                new_Account_history.push_back(((i1->second).Account_history)[hi2]);
+                new_Account_history->push_back((i2->second).Account_history->at(hi2));
                 hi2++;
             }
         }
         while(hi1 != h1)
         {
-            new_Account_history.push_back(((i1->second).Account_history)[hi1]);
+            new_Account_history->push_back((i1->second).Account_history->at(hi1));
             hi1++;
         }
         while(hi2 != h2)
         {
-            new_Account_history.push_back(((i1->second).Account_history)[hi2]);
+            new_Account_history->push_back((i2->second).Account_history->at(hi2));
             hi2++;
         }
         for(i = 0; i < h2; i++)
         {
-            if(((i2->second).Account_history)[i]->give_ID == ID2)
-                ((i2->second).Account_history)[i]->give_ID = ID1;
-            if(((i2->second).Account_history)[i]->get_ID == ID2)
-                ((i2->second).Account_history)[i]->give_ID = ID1;
+            if((i2->second).Account_history->at(i)->give_ID == ID2)
+                (i2->second).Account_history->at(i)->give_ID = ID1;
+            if((i2->second).Account_history->at(i)->get_ID == ID2)
+                (i2->second).Account_history->at(i)->get_ID = ID1;
         }
+//        vector<History*>().swap((i1->second).Account_history);
+//        vector<History*>().swap((i2->second).Account_history);
+        (i1->second).Account_history = new_Account_history;
         Account_map.erase(i2);
         ans = std::make_pair (SUCCESS, (i1->second).money);
     }
@@ -140,15 +143,53 @@ pair<int, long long> Bank::transfer(const string &ID, const long long &money)
         (last_login->second).money -= money;
         Transfer_history.push_back(History((last_login->first), ID, money, transferred_number));
         transferred_number++;
-        (last_login->second).Account_history.push_back(&Transfer_history[Transfer_history.size() - 1]);
+        (last_login->second).Account_history->push_back(&Transfer_history[Transfer_history.size() - 1]);
         ans = std::make_pair(SUCCESS, (last_login->second).money);
     }
     return ans;
 }
-void find_and_print(const string &ID){}
-int search_and_print(const string &ID)
+void Bank::find_and_print(const string &regexp)
 {
-    return 0;
+    map<string, Account>::iterator i;
+    bool first_output = 1;
+    for(i = Account_map.begin(); i != Account_map.end(); ++i)
+    {
+        string ID = i->first;
+        int length_regexp = regexp.length();
+        int length_ID = ID.length();
+        if(match(regexp, ID, 0, 0, length_regexp, length_ID))
+        {
+            if(first_output)
+            {
+                first_output = 0;
+                cout<<ID;
+            }
+            else                
+                cout<<","<<ID;
+        }
+    }
+    cout<<endl;
+}
+int Bank::search_and_print(const string &ID)
+{
+    map<string,Account>::iterator iter = Account_map.find(ID);
+    if(iter == Account_map.end())
+        return ID_NOT_FOUND;
+    vector<History *> *nowHistory = last_login->second.Account_history;
+    bool noRecord = true;
+    for(unsigned int i = 0;i < nowHistory->size();i++){
+        if(nowHistory->at(i)->give_ID == ID){
+            cout<<"From "<<ID<<' '<<nowHistory->at(i)->money<<endl;
+            noRecord = false;
+        }
+        else if(nowHistory->at(i)->get_ID == ID){
+            cout<<"To "<<ID<<' '<<nowHistory->at(i)->money<<endl;
+            noRecord = false;
+        }
+    }
+    if(noRecord)
+        return NO_RECORD;
+    return SUCCESS;
 }
 void Bank::setBeginIter(void){
     mapIter = Account_map.begin();
