@@ -69,16 +69,10 @@ pair<int, long long> Bank::merge(const string &ID1, const string &password1, con
         std::vector<History *> *new_Account_history = new vector<History *>;
         while(hi1 != h1 && hi2 != h2)
         {
-            if((i1->second).Account_history->at(hi1)->transfer_time < (i2->second).Account_history->at(hi2)->transfer_time)
+            if((i1->second).Account_history->at(hi1)->transfer_time <= (i2->second).Account_history->at(hi2)->transfer_time)
             {
                 new_Account_history->push_back((i1->second).Account_history->at(hi1));
                 hi1++;
-            }
-            else if((i1->second).Account_history->at(hi1)->transfer_time == (i2->second).Account_history->at(hi2)->transfer_time)
-            {
-                new_Account_history->push_back((i1->second).Account_history->at(hi1));
-                hi1++;
-                hi2++;
             }
             else
             {
@@ -175,9 +169,13 @@ int Bank::search_and_print(const string &ID)
     map<string,Account>::iterator iter = Account_map.find(ID);
     if(iter == Account_map.end())
         return ID_NOT_FOUND;
+    cout<<"ID found"<<endl;
     vector<History *> *nowHistory = last_login->second.Account_history;
+    cout<<"last_login: "<<last_login->first<<endl;
+    cout<<"size: "<<last_login->second.Account_history->size()<<endl;
     bool noRecord = true;
     for(unsigned int i = 0;i < nowHistory->size();i++){
+        cout<<"i="<<i<<endl;
         if(nowHistory->at(i)->give_ID == ID){
             cout<<"From "<<ID<<' '<<nowHistory->at(i)->money<<endl;
             noRecord = false;
