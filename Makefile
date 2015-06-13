@@ -13,9 +13,11 @@ all:
 main: main.o bank.o find_similar_strings.o 
 	g++ main.o bank.o find_similar_strings.o -o main
 main.o: main.cpp bank.h
-	g++ $(CPPFLAGS) $< -c $@
+	g++ $(CPPFLAGS) $< -c -o $@
 bank.o: bank.cpp bank.h md5.h
-	g++ $(CPPFLAGS) $< -c $@
-find_similar_strings: find_similar_strings.cpp bank.h
-	g++ $(CPPFLAGS) $< -c $@
+	g++ $(CPPFLAGS) $< -c -o $@
+find_similar_strings.o: find_similar_strings.cpp bank.h
+	g++ $(CPPFLAGS) $< -c -o $@
 
+clean:
+	rm -f *.o main
