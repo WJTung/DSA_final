@@ -138,7 +138,9 @@ pair<int, int> Bank::transfer(const string &ID, const int &money)
         (last_login->second).money -= money;
         Transfer_history.push_back(History((last_login->first), ID, money, transferred_number));
         transferred_number++;
-        (last_login->second).Account_history->push_back(&Transfer_history[Transfer_history.size() - 1]);
+        History *new_history = &(Transfer_history[Transfer_history.size() - 1]);
+        (last_login->second).Account_history->push_back(new_history);
+        (i->second).Account_history->push_back(new_history);
         ans = std::make_pair(SUCCESS, (last_login->second).money);
     }
     return ans;
