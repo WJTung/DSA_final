@@ -7,7 +7,7 @@ using namespace std;
 #define MAX_SCORE 10000
 #define WORD_LEN 62
 #define sum1toN(n) ((n)*(n+1)/2)
-#define ABS(x) ((x>0)?x:-x)
+#define ABS(x) ((x>0)?x:-(x))
 
 map<string,bool> account;
 char word[] = {"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"};   //帳號可能會出現的字元
