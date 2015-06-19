@@ -1,8 +1,7 @@
 #include <string>
 #include <iostream>
 using namespace std;
-int match(string &, string &, int, int, const int, const int);
-int main()
+/*int main()
 {
 	string regexp, ID;
 	while(cin>>regexp>>ID)
@@ -13,8 +12,8 @@ int main()
 		else
 			cout<<"Not match"<<endl;
 	}
-}
-int match(string &regexp, string &ID, int position_regexp, int position_ID, const int length_regexp, const int length_ID)
+}*/
+int match(const string &regexp,const string &ID, int position_regexp, int position_ID, const int length_regexp, const int length_ID)
 {
 	if(position_regexp == length_regexp)
 		return (position_ID == length_ID);

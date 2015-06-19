@@ -8,7 +8,7 @@ int main()
 {
     string command, ID, password, ID1, password1, ID2, password2; 
     int status_code;
-    long long num;
+    int num;
     Bank bank;
     while(cin>>command)
     {
@@ -17,11 +17,11 @@ int main()
             cin>>ID>>password;
             status_code = bank.login(ID, password);
             if(status_code == ID_NOT_FOUND)
-                cout<<"ID ["<<ID<<"] not found"<<endl;
+                cout<<"ID "<<ID<<" not found"<<endl;
             else if(status_code == WRONG_PS)
-                puts("wrong password\n");
+                puts("wrong password");
             else
-                puts("success\n");
+                puts("success");
         }
         else if(command == "create")
         {
@@ -33,40 +33,40 @@ int main()
                 findUncreatedID(ID, 10, bank);
             }
             else if(status_code == SUCCESS)
-                puts("success\n");
+                puts("success");
         }
-        else if(command == "deleting")
+        else if(command == "delete")
         {
             cin>>ID>>password;
             status_code = bank.deleting(ID, password);
             if(status_code == ID_NOT_FOUND)
-                cout<<"ID ["<<ID<<"] not found"<<endl;
+                cout<<"ID "<<ID<<" not found"<<endl;
             else if(status_code == WRONG_PS)
-                puts("wrong password\n");
+                puts("wrong password");
             else
-                puts("success\n");
+                puts("success");
         }
         else if(command == "merge")
         {
             cin>>ID1>>password1>>ID2>>password2;
-            std::pair <int, long long> response;
+            std::pair <int, int> response;
             response = bank.merge(ID1, password1, ID2, password2);
             if(std::get<0>(response) == ID_NOT_FOUND)
-                cout<<"ID ["<<ID1<<"] not found"<<endl;
+                cout<<"ID "<<ID1<<" not found"<<endl;
             else if(std::get<1>(response) == ID_NOT_FOUND) 
-                cout<<"ID ["<<ID2<<"] not found"<<endl;
+                cout<<"ID "<<ID2<<" not found"<<endl;
             else if(std::get<0>(response) == WRONG_PS) 
-                puts("wrong password1\n");
+                puts("wrong password1");
             else if(std::get<1>(response) == WRONG_PS) 
-                puts("wrong password2\n");
+                puts("wrong password2");
             else
             {
-                cout<<"success, ["<<ID1<<"] has ["<<std::get<1>(response)<<"] dollars"<<endl;
+                cout<<"success, "<<ID1<<" has "<<std::get<1>(response)<<" dollars"<<endl;
             }
         }
         else if(command == "deposit")
         {
-            long long balance;
+            int balance;
             cin>>num;
             balance = bank.deposit(num);
             cout<<"success, "<<balance<<" dollars in current account"<<endl;
@@ -74,19 +74,22 @@ int main()
         else if(command == "withdraw")
         {
             cin>>num;
-            std::pair <int, long long> response;
+            std::pair <int, int> response;
             response = bank.withdraw(num);
             if(std::get<0>(response) == FAIL)
-                cout<<"fail, "<<std::get<1>(response)<<" dollars only in current account";
+                cout<<"fail, "<<std::get<1>(response)<<" dollars only in current account"<<endl;
             else
-                cout<<"success, ["<<std::get<1>(response)<<"] dollars left in current account";
+                cout<<"success, "<<std::get<1>(response)<<" dollars left in current account"<<endl;
         }
         else if(command == "transfer")
         {
             cin>>ID>>num;
-            std::pair <int, long long> response;
+            std::pair <int, int> response;
             response = bank.transfer(ID, num);
-            if(std::get<0>(response) == ID_NOT_FOUND);
+            if(std::get<0>(response) == ID_NOT_FOUND){
+                cout<<"ID "<<ID<<" not found, ";
+                findCreatedID(ID,10,bank);
+            }
             else if(std::get<0>(response) == FAIL)
                 cout<<"fail, "<<std::get<1>(response)<<" dollars only in current account"<<endl;
             if(std::get<0>(response) == SUCCESS)
@@ -104,7 +107,7 @@ int main()
             if (status_code == ID_NOT_FOUND)
                 cout<<"ID "<<ID<<" not found"<<endl;
             else if (status_code == NO_RECORD)
-                puts("no record\n");
+                puts("no record");
             else if (status_code == SUCCESS);
         }
     }

@@ -6,12 +6,12 @@ CPPFLAGS = -O2 -std=c++11 -Wall
 %: %.cpp
 	g++ $(CPPFLAGS) $< -o $@
 %.o: %.cpp
-	g++ $(CPPFLAGS) $< -c $@
+	g++ $(CPPFLAGS) $< -c -o $@
 
-all:
+all:main
 
-main: main.o bank.o find_similar_strings.o 
-	g++ main.o bank.o find_similar_strings.o -o main
+main: main.o bank.o find_similar_strings.o md5.o match_string.o 
+	g++ main.o bank.o find_similar_strings.o md5.o match_string.o -o final_project
 main.o: main.cpp bank.h
 	g++ $(CPPFLAGS) $< -c -o $@
 bank.o: bank.cpp bank.h md5.h
@@ -20,4 +20,4 @@ find_similar_strings.o: find_similar_strings.cpp bank.h
 	g++ $(CPPFLAGS) $< -c -o $@
 
 clean:
-	rm -f *.o main
+	rm -f *.o final_project
