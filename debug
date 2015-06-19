@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+file_in="test_in_small.txt"
+file_out="test_out_small.txt"
+line=$1
+
+total_line=`grep -c ".*" $file_in`
+if [ -z "$line" ] || [ $line -gt $total_line ] ;then
+    line=$total_line
+fi
+
+make
+head -n $line $file_in | ./final_project > tmp_output
+diff $file_out tmp_output > tmp_result
+diff_line=`head -n 1 tmp_result | awk -F [,c] '{print $1}'`
+processed_line=`grep -c ".*" tmp_output`
+
+echo -e "\n\n\n"
+
+if [ "$line" -lt "$diff_line" ] ;then
+    diff_line=""
+fi
+
+if [ "$diff_line" ] ;then
+    echo -e "difference found in line $diff_line"
+    echo "command:"
+    sed -n "${diff_line}p" $file_in
+    echo -e "----------------------------------------------------------"
+    echo -e "correct output:"
+    sed -n "${diff_line}p" $file_out
+    echo -e "----------------------------------------------------------"
+    echo -e "now output:"
+    sed -n "${diff_line}p" tmp_output
+fi
+
+if [ -z "$diff_line" ] ;then
+    echo -e "all correct till line $line"
+fi
+
+if [ "$line" -gt "$processed_line" ] ;then
+    processed_line=$((processed_line+1))
+    echo -e "segmentation fault at line ${processed_line} ,command:"
+    sed -n "${processed_line}p" $file_in
+fi
+
+rm -f tmp_result tmp_output
