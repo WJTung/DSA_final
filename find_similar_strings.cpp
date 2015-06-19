@@ -5,6 +5,7 @@
 
 using namespace std;
 #define MAX_SCORE 10000
+#define WORD_LEN 62
 #define sum1toN(n) ((n)*(n+1)/2)
 #define ABS(x) ((x>0)?x:-x)
 
@@ -17,10 +18,17 @@ int findMinLen(int len,int score){                      //在差值=score下，�
             return i;
     return len;
 }
-void add(string &now,int originLen,int nowLen){         //字串>原長時，要窮舉字串尾的排組   
-    int len = strlen(word);
+int getNewLen(int originLen,int score){                 //測試是否有後綴長度剛好等於score
+    int i;
+    for(i = 1;sum1toN(i) < score;i++);
+    if(sum1toN(i) == score)
+        return originLen + i;
+    else 
+        return -1;
+}
+void add(string &now,int originLen,int nowLen){             
     for(int idx = nowLen - 1; idx > originLen; idx--){
-        if(now[idx] != word[len - 1]){
+        if(now[idx] != word[WORD_LEN - 1]){
             now[idx]++;
             return ;
         }
@@ -28,14 +36,21 @@ void add(string &now,int originLen,int nowLen){         //字串>原長時，要
             now[idx] = word[0];
     }
     now[originLen]++;
-    if(now[originLen] > word[len - 1])
+    if(now[originLen] > word[WORD_LEN - 1])
         now[originLen] = word[0];
     return;
 }
 
-int printAllPostfix(string &origin,string &now,int needed,Bank &bank){  //如果score符合 且 now長 > 原字串長，輸出全部可能後綴
-    int finded = 0,originLen = origin.length(),nowLen = now.length();
-    for(string prv = now; prv <= now && finded < needed; prv = now,add(now,originLen,nowLen)){
+//字串>原長時，要窮舉字串尾的排組   
+int printAllPostfix(string &origin,int originLen,string &now,int score,int needed,Bank &bank){
+    int finded = 0,newLen = getNewLen(originLen,score);
+    //cout<<" newLen: "<<newLen<<' ';
+    if(newLen == -1) return 0;
+    else{
+        for(int i = 0;i < newLen - originLen;i++)
+            now += word[0];
+    }
+    for(string prv = now; prv <= now && finded < needed; prv = now,add(now,originLen,newLen)){
         if(!bank.existed(now)){
             cout<<now;
             finded++;
@@ -43,94 +58,38 @@ int printAllPostfix(string &origin,string &now,int needed,Bank &bank){  //如果
                 cout<<',';
         }
     }
+    now = now.substr(0,originLen);
     return finded;
 }
-int printSameLenString(string &origin,string &now,int newLen,int score,int idx,int needed,Bank &bank){//固定score和長度，修改字元
-    if(sum1toN(newLen - idx) < score)
-        return 0;
+//output 同score字串，字典序由小到大
+int printSameScoreString(string &origin,int originLen,string &now,int nowIdx,int score,int needed,int changeNum,Bank &bank){
     int finded = 0;
-    if(score - (newLen - idx) == 0){
-        unsigned wordIdx;
-        for(wordIdx = 0;wordIdx < strlen(word) && word[wordIdx] < origin[idx] && finded < needed;wordIdx++){
-            now[idx] = word[wordIdx];
-            if(now.length() > origin.length()){
-                finded += printAllPostfix(origin,now,needed - finded,bank);
-            }
-            else if(!bank.existed(now)){
-                cout<<now;
-                finded++;
-                if(finded < needed)
-                    cout<<',';
-            }
-        }
-        if(finded < needed && idx+1 < newLen){
-            now[idx] = origin[idx];
-            finded += printSameLenString(origin,now,newLen,score,idx+1,needed - finded,bank);
-        }
-        for(wordIdx = wordIdx + 1;wordIdx < strlen(word) && finded < needed; wordIdx++){
-            now[idx] = word[wordIdx];
-            if(now.length() > origin.length()){
-                finded += printAllPostfix(origin,now,needed - finded,bank);
-            }
-            else if(!bank.existed(now)){
-                cout<<now;
-                finded++;
-                if(finded < needed)
-                    cout<<',';
-            }
-        }
-        now[idx] = origin[idx];
+    if(nowIdx == originLen){            //超過原長，如果某長度可以符合score，直接字典序輸出
+        finded += printAllPostfix(origin,originLen,now,score,needed - finded,bank);
         return finded;
     }
-    else if(score - (newLen - idx) > 0){
-        unsigned wordIdx;
-        for(wordIdx = 0;wordIdx < strlen(word) && word[wordIdx] < origin[idx] && finded < needed;wordIdx++){
-            now[idx] = word[wordIdx];
-            finded += printSameLenString(origin,now,newLen,score - (newLen - idx),idx+1,needed - finded,bank);
-        }
-        if(finded < needed){
-            now[idx] = origin[idx];
-            finded += printSameLenString(origin,now,newLen,score,idx+1,needed - finded,bank);
-        }
-        for(wordIdx = wordIdx + 1;wordIdx < strlen(word) && finded < needed; wordIdx++){
-            now[idx] = word[wordIdx];
-            finded += printSameLenString(origin,now,newLen,score - (newLen - idx),idx+1,needed - finded,bank);
-        }
-        now[idx] = origin[idx];
-        return finded;
-    }
-    else{
-        finded += printSameLenString(origin,now,newLen,score,idx+1,needed - finded,bank);
-        return finded;
-    }
-}
-int printSameScoreString(string &origin,int score,int needed,Bank &bank){               //固定score，修改長度
-    int len = origin.length();
-    int newLen = findMinLen(len,score), deltaL = len - newLen;
-    int finded = 0;
-    if(score - sum1toN(len - newLen) == 0){
-        string now = origin.substr(0,newLen);
-        if(!bank.existed(now)){
-            cout<<origin.substr(0,newLen)<<' ';
+    if(nowIdx != 0 && sum1toN(originLen - nowIdx) - changeNum * (originLen - nowIdx) == score){ //刪掉idx後string剛好符合score
+        string shortNow = now.substr(0,nowIdx);
+        if(!bank.existed(shortNow)){
+            cout<<shortNow;
             finded++;
+            if(finded < needed)
+                cout<<',';
         }
-        newLen++;
+        if(finded == needed)
+            return finded;
     }
-    for(;finded < needed && newLen <= len;newLen++){
-        string now = origin.substr(0,newLen);
-        finded += printSameLenString(origin,now,newLen,score - sum1toN(len - newLen),0,needed - finded,bank);
+
+    int wordIdx = 0;
+    if(originLen - nowIdx < score){                                 //將now[idx]調小(字典序)
+        for(;finded < needed && word[wordIdx] < origin[nowIdx];wordIdx++){
+            now[nowIdx] = word[wordIdx];
+            finded += printSameScoreString(origin,originLen,now,nowIdx+1,score-(originLen-nowIdx),needed-finded,changeNum+1,bank);
+        }
     }
-    string now,es;
-    for(now = origin + word[0],es = word[strlen(word) - 1];
-        finded < needed && newLen < len + deltaL;
-        newLen++,now += word[0],es += word[strlen(word) - 1]){
-        //for(; now.substr(len,newLen - len) <= es && finded < needed; add(now,len,newLen)){
-            finded += printSameLenString(origin,now,len,score - sum1toN(newLen - len),0,needed - finded,bank);
-        //}
-        //now[len] = word[0];
-    }
-    if(finded < needed && score - sum1toN(newLen - len) == 0){
-        for(string prv = now; prv <= now && finded < needed; prv = now,add(now,len,newLen)){
+    else if(originLen - nowIdx == score){
+        for(;finded < needed && word[wordIdx] < origin[nowIdx];wordIdx++){
+            now[nowIdx] = word[wordIdx];
             if(!bank.existed(now)){
                 cout<<now;
                 finded++;
@@ -139,18 +98,41 @@ int printSameScoreString(string &origin,int score,int needed,Bank &bank){       
             }
         }
     }
-    else if(finded < needed){
-        //for(; now.substr(len,newLen - len) <= es && finded < needed; add(now,len,newLen)){
-            finded += printSameLenString(origin,now,len,score - sum1toN(newLen - len),0,needed - finded,bank);
-        //}
+
+    now[nowIdx] = origin[nowIdx];
+    if(finded == needed){
+        return finded;
     }
+    else{                               //不變，直接測下一個idx
+        finded += printSameScoreString(origin,originLen,now,nowIdx+1,score,needed - finded,changeNum,bank);
+    }
+
+    if(originLen - nowIdx < score){                                 //將now[idx]調大(字典序)
+        for(wordIdx = wordIdx + 1;finded < needed && wordIdx < WORD_LEN;wordIdx++){
+            now[nowIdx] = word[wordIdx];
+            finded += printSameScoreString(origin,originLen,now,nowIdx+1,score-(originLen-nowIdx),needed-finded,changeNum+1,bank);
+        }
+    }
+    else if(originLen - nowIdx == score){
+        for(wordIdx = wordIdx + 1;finded < needed && wordIdx < WORD_LEN;wordIdx++){
+            now[nowIdx] = word[wordIdx];
+            if(!bank.existed(now)){
+                cout<<now;
+                finded++;
+                if(finded < needed)
+                    cout<<',';
+            }
+        }
+    }
+    now[nowIdx] = origin[nowIdx];
     return finded;
 }
-///////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////find uncreated ID main function//////////////////////////////////
 void findUncreatedID(string &origin,int needNum,Bank &bank){                        //窮舉所有可能score,find uncreated ID
     int finded = 0;
     for(int score = 1;finded < needNum && score < MAX_SCORE; score++){
-        finded += printSameScoreString(origin,score,needNum - finded,bank);
+        string now = origin;
+        finded += printSameScoreString(origin,origin.length(),now,0,score,needNum - finded,0,bank);
     }
     putchar('\n');
 /*
@@ -161,6 +143,8 @@ void findUncreatedID(string &origin,int needNum,Bank &bank){                    
 */
     return ;
 }
+
+////////////////////////////////////////find created ID////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////
 int getScore(string &sa,string &sb){
     int na = sa.length(),nb = sb.length();
@@ -181,6 +165,7 @@ void insertion(int idx,string *IDs,int *scores){
     }
     return ;
 }
+////////////////////////////////find created ID main function//////////////////////////////////////////
 void findCreatedID(string &origin,int needNum,Bank &bank){                          //窮舉已存在帳號,找出score最小ID needNum個
     string IDs[needNum];
     int scores[needNum];
