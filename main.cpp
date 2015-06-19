@@ -104,9 +104,7 @@ int main()
         {
             cin>>ID;
             status_code = bank.search_and_print(ID);
-            if (status_code == ID_NOT_FOUND)
-                cout<<"ID "<<ID<<" not found"<<endl;
-            else if (status_code == NO_RECORD)
+            if (status_code == NO_RECORD)
                 puts("no record");
             else if (status_code == SUCCESS);
         }

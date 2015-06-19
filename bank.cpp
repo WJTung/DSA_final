@@ -169,9 +169,6 @@ void Bank::find_and_print(const string &regexp)
 }
 int Bank::search_and_print(const string &ID)
 {
-    map<string,Account>::iterator iter = Account_map.find(ID);
-    if(iter == Account_map.end())
-        return ID_NOT_FOUND;
     vector<History *> *nowHistory = last_login->second.Account_history;
     bool noRecord = true;
     for(unsigned int i = 0;i < nowHistory->size();i++){
