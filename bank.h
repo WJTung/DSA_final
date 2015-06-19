@@ -12,17 +12,17 @@ using namespace std;
 struct History{
     string give_ID;
     string get_ID;
-    long long money;
+    int money;
     int transfer_time;
-    History(string give_id, string get_id, long long amount, int time):give_ID(give_id), get_ID(get_id), money(amount), 
+    History(string give_id, string get_id, int amount, int time):give_ID(give_id), get_ID(get_id), money(amount), 
     transfer_time(time){}
 };
 struct Account{
     string ID;
     string hash_password; 
-    long long money;
+    int money;
     std::vector<History *> *Account_history;
-    Account(string id,string hash,long long m = 0):ID(id),hash_password(hash),money(m){}
+    Account(string id,string hash,int m = 0):ID(id),hash_password(hash),money(m){}
     Account(){}
 };
 
@@ -40,10 +40,10 @@ class Bank{
         int login(const string& , const string&);
         int create(const string& , const string&);
         int deleting(const string& , const string&);
-        pair<int, long long> merge(const string& , const string& , const string& , const string&);
-        long long deposit(const long long&);
-        pair<int, long long> withdraw(const long long&);
-        pair<int, long long> transfer(const string& , const long long&);
+        pair<int, int> merge(const string& , const string& , const string& , const string&);
+        int deposit(const int&);
+        pair<int, int> withdraw(const int&);
+        pair<int, int> transfer(const string& , const int&);
         void find_and_print(const string&);
         int search_and_print(const string&);
         void setBeginIter(void);

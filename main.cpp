@@ -8,7 +8,7 @@ int main()
 {
     string command, ID, password, ID1, password1, ID2, password2; 
     int status_code;
-    long long num;
+    int num;
     Bank bank;
     while(cin>>command)
     {
@@ -35,7 +35,7 @@ int main()
             else if(status_code == SUCCESS)
                 puts("success");
         }
-        else if(command == "deleting")
+        else if(command == "delete")
         {
             cin>>ID>>password;
             status_code = bank.deleting(ID, password);
@@ -49,7 +49,7 @@ int main()
         else if(command == "merge")
         {
             cin>>ID1>>password1>>ID2>>password2;
-            std::pair <int, long long> response;
+            std::pair <int, int> response;
             response = bank.merge(ID1, password1, ID2, password2);
             if(std::get<0>(response) == ID_NOT_FOUND)
                 cout<<"ID "<<ID1<<" not found"<<endl;
@@ -66,7 +66,7 @@ int main()
         }
         else if(command == "deposit")
         {
-            long long balance;
+            int balance;
             cin>>num;
             balance = bank.deposit(num);
             cout<<"success, "<<balance<<" dollars in current account"<<endl;
@@ -74,7 +74,7 @@ int main()
         else if(command == "withdraw")
         {
             cin>>num;
-            std::pair <int, long long> response;
+            std::pair <int, int> response;
             response = bank.withdraw(num);
             if(std::get<0>(response) == FAIL)
                 cout<<"fail, "<<std::get<1>(response)<<" dollars only in current account"<<endl;
@@ -84,7 +84,7 @@ int main()
         else if(command == "transfer")
         {
             cin>>ID>>num;
-            std::pair <int, long long> response;
+            std::pair <int, int> response;
             response = bank.transfer(ID, num);
             if(std::get<0>(response) == ID_NOT_FOUND){
                 cout<<"ID "<<ID<<" not found, ";

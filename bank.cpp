@@ -46,7 +46,7 @@ int Bank::deleting(const string &ID, const string &password)
         return SUCCESS;
     }
 }
-pair<int, long long> Bank::merge(const string &ID1, const string &password1, const string &ID2, const string &password2)
+pair<int, int> Bank::merge(const string &ID1, const string &password1, const string &ID2, const string &password2)
 {
     map<string, Account>::iterator i1 = Account_map.find(ID1);
     map<string, Account>::iterator i2 = Account_map.find(ID2);
@@ -106,29 +106,29 @@ pair<int, long long> Bank::merge(const string &ID1, const string &password1, con
     }
     return ans;
 }
-long long Bank::deposit(const long long &money)
+int Bank::deposit(const int &money)
 {
     (last_login->second).money += money;
     return (last_login->second).money ;
 }
-pair<int, long long> Bank::withdraw(const long long &money)
+pair<int, int> Bank::withdraw(const int &money)
 {
     if((last_login->second).money >= money)
     {
         (last_login->second).money -= money;
-        std::pair<int, long long> ans = std::make_pair(SUCCESS, (last_login->second).money);
+        std::pair<int, int> ans = std::make_pair(SUCCESS, (last_login->second).money);
         return ans;
     }
     else
     {
-        std::pair<int, long long> ans = std::make_pair(FAIL, (last_login->second).money);
+        std::pair<int, int> ans = std::make_pair(FAIL, (last_login->second).money);
         return ans;
     }
 }
-pair<int, long long> Bank::transfer(const string &ID, const long long &money)
+pair<int, int> Bank::transfer(const string &ID, const int &money)
 {
     map<string, Account>::iterator i = Account_map.find(ID);
-    std::pair<int, long long> ans;
+    std::pair<int, int> ans;
     if(i == Account_map.end())
         ans = std::make_pair(ID_NOT_FOUND, 0);
     else if((last_login->second).money < money)
