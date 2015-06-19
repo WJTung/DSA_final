@@ -6,12 +6,15 @@
 using namespace std;
 int main()
 {
+    //int idx = 1;
     string command, ID, password, ID1, password1, ID2, password2; 
     int status_code;
     int num;
     Bank bank;
     while(cin>>command)
     {
+        //cout<<idx<<' ';
+        //idx++;
         if(command == "login")
         {
             cin>>ID>>password;

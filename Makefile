@@ -21,3 +21,7 @@ find_similar_strings.o: find_similar_strings.cpp bank.h
 
 clean:
 	rm -f *.o final_project
+
+debug: main
+	rm -f test2.out
+	./final_project < test2.in > test2.out

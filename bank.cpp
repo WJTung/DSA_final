@@ -55,10 +55,10 @@ pair<int, int> Bank::merge(const string &ID1, const string &password1, const str
     std::pair<int, int> ans;
     if(i1 == Account_map.end())
         ans = std::make_pair (ID_NOT_FOUND, 0);
-    else if(hash_password1 != (i1->second).hash_password)
-        ans = std::make_pair (WRONG_PS, 0);
     else if(i2 == Account_map.end())
         ans = std::make_pair (SUCCESS, ID_NOT_FOUND);
+    else if(hash_password1 != (i1->second).hash_password)
+        ans = std::make_pair (WRONG_PS, 0);
     else if(hash_password2 != (i2->second).hash_password)
         ans = std::make_pair (SUCCESS, WRONG_PS);
     else
@@ -136,9 +136,10 @@ pair<int, int> Bank::transfer(const string &ID, const int &money)
     else
     {
         (last_login->second).money -= money;
-        Transfer_history.push_back(History((last_login->first), ID, money, transferred_number));
+        History *tmp = new History((last_login->first), ID, money, transferred_number);
+        Transfer_history.push_back(tmp);
         transferred_number++;
-        History *new_history = &(Transfer_history[Transfer_history.size() - 1]);
+        History *new_history = Transfer_history.at(Transfer_history.size() - 1);
         (last_login->second).Account_history->push_back(new_history);
         (i->second).Account_history->push_back(new_history);
         ans = std::make_pair(SUCCESS, (last_login->second).money);
@@ -170,8 +171,10 @@ void Bank::find_and_print(const string &regexp)
 int Bank::search_and_print(const string &ID)
 {
     vector<History *> *nowHistory = last_login->second.Account_history;
+    //cout<<"last_login_ID: "<<last_login->first<<' ';
     bool noRecord = true;
     for(unsigned int i = 0;i < nowHistory->size();i++){
+        //cout<<"history "<<i<<": "<<(nowHistory->at(i)->give_ID)<<"\t to \t"<<(nowHistory->at(i)->get_ID)<<"\t, money\t"<<(nowHistory->at(i)->money);
         if(nowHistory->at(i)->give_ID == ID){
             cout<<"From "<<ID<<' '<<nowHistory->at(i)->money<<endl;
             noRecord = false;

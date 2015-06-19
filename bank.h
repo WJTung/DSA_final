@@ -31,7 +31,7 @@ class Bank{
         Account *iterator;
         std::map<string, Account>::iterator mapIter;
         std::map<string, Account> Account_map;
-        std::vector<History> Transfer_history;
+        std::vector<History*> Transfer_history;
         std::map<string, Account>::iterator last_login;
         int transferred_number;
     public:
