@@ -28,7 +28,7 @@ struct Account{
 class Bank{
     private:
         Account *iterator;
-        std::vector<History> Transfer_history;
+        std::vector<History*> Transfer_history;
         int transferred_number;
     public:
         Bank(){transferred_number = 0;}

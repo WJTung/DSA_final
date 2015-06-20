@@ -7,10 +7,10 @@ using namespace std;
 #define MAX_SCORE 10000
 #define WORD_LEN 62
 #define sum1toN(n) ((n)*(n+1)/2)
-#define ABS(x) ((x>0)?x:-x)
+#define ABS(x) ((x>0)?x:-(x))
 
 map<string,bool> account;
-char word[] = {"0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ"};   //帳號可能會出現的字元
+char word[] = {"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"};   //帳號可能會出現的字元
 
 int findMinLen(int len,int score){                      //在差值=score下，字串最短可能長度
     for(int i = 1;i < len;i++)
@@ -181,7 +181,7 @@ void findCreatedID(string &origin,int needNum,Bank &bank){                      
         }
         else if(scores[num-1] > nowScore || (scores[num-1] == nowScore && IDs[num-1] > nowString)){
             IDs[num-1] = nowString;
-            scores[num] = nowScore;
+            scores[num-1] = nowScore;
             insertion(num-1,IDs,scores);
         }
     }

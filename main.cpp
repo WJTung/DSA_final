@@ -6,12 +6,15 @@
 using namespace std;
 int main()
 {
+    //int idx = 1;
     string command, ID, password, ID1, password1, ID2, password2; 
     int status_code;
     int num;
     Bank bank;
     while(cin>>command)
     {
+        //cout<<idx<<' ';
+        //idx++;
         if(command == "login")
         {
             cin>>ID>>password;
@@ -104,9 +107,7 @@ int main()
         {
             cin>>ID;
             status_code = bank.search_and_print(ID);
-            if (status_code == ID_NOT_FOUND)
-                cout<<"ID "<<ID<<" not found"<<endl;
-            else if (status_code == NO_RECORD)
+            if (status_code == NO_RECORD)
                 puts("no record");
             else if (status_code == SUCCESS);
         }
