@@ -18,13 +18,25 @@ int findMinLen(int len,int score){                      //在差值=score下，�
             return i;
     return len;
 }
-int getNewLen(int originLen,int score){                 //測試是否有後綴長度剛好等於score
-    int i;
+int getAddLen(int score){                 //測試是否有後綴長度剛好等於score
+    int left = 1,right = score + 1,mid;
+    while(left != right - 1){
+        mid = (left+right)/2;
+        if(sum1toN(mid) > score)
+            right = mid;
+        else
+            left = mid;
+    }
+    if(sum1toN(left) == score)
+        return left;
+    else
+        return -1;
+    /*int i;
     for(i = 1;sum1toN(i) < score;i++);
     if(sum1toN(i) == score)
         return originLen + i;
     else 
-        return -1;
+        return -1;*/
 }
 void add(string &now,int originLen,int nowLen){             
     for(int idx = nowLen - 1; idx > originLen; idx--){
@@ -43,9 +55,8 @@ void add(string &now,int originLen,int nowLen){
 
 //字串>原長時，要窮舉字串尾的排組   
 int printAllPostfix(string &origin,int originLen,string &now,int score,int needed,Bank &bank){
-    int finded = 0,newLen = getNewLen(originLen,score);
-    //cout<<" newLen: "<<newLen<<' ';
-    if(newLen == -1) return 0;
+    int finded = 0,newLen = originLen + getAddLen(score);
+    if(newLen < originLen) return 0;
     else{
         for(int i = 0;i < newLen - originLen;i++)
             now += word[0];
@@ -130,9 +141,10 @@ int printSameScoreString(string &origin,int originLen,string &now,int nowIdx,int
 /////////////////////////////////find uncreated ID main function//////////////////////////////////
 void findUncreatedID(string &origin,int needNum,Bank &bank){                        //窮舉所有可能score,find uncreated ID
     int finded = 0;
+    int originLen = origin.length();
     for(int score = 1;finded < needNum && score < MAX_SCORE; score++){
         string now = origin;
-        finded += printSameScoreString(origin,origin.length(),now,0,score,needNum - finded,0,bank);
+        finded += printSameScoreString(origin,originLen,now,originLen - score,score,needNum - finded,0,bank);
     }
     putchar('\n');
 /*
@@ -156,13 +168,14 @@ int getScore(string &sa,string &sb){
     }
     return score;
 }
-void insertion(int idx,string *IDs,int *scores){
-    if(idx == 0) return ;
-    if(scores[idx-1] > scores[idx] || (scores[idx-1] == scores[idx] && IDs[idx-1] > IDs[idx])){
-        swap(scores[idx-1],scores[idx]);
-        swap(IDs[idx-1],IDs[idx]);
-        insertion(idx-1,IDs,scores);
+void insertion(int idx,string *IDs,int *scores,string &nowString,int nowScore){
+    while(idx > 0 && (scores[idx-1] > nowScore || (scores[idx-1] == nowScore && IDs[idx-1] > nowString)) ){
+        IDs[idx] = IDs[idx-1];
+        scores[idx] = scores[idx-1];
+        idx--;
     }
+    IDs[idx] = nowString;
+    scores[idx] = nowScore;
     return ;
 }
 ////////////////////////////////find created ID main function//////////////////////////////////////////
@@ -174,15 +187,11 @@ void findCreatedID(string &origin,int needNum,Bank &bank){                      
         string nowString = bank.getIter()->ID;
         int nowScore = getScore(origin,nowString);
         if(num < needNum){
-            IDs[num] = nowString;
-            scores[num] = nowScore;
-            insertion(num,IDs,scores);
+            insertion(num,IDs,scores,nowString,nowScore);
             num++;
         }
         else if(scores[num-1] > nowScore || (scores[num-1] == nowScore && IDs[num-1] > nowString)){
-            IDs[num-1] = nowString;
-            scores[num-1] = nowScore;
-            insertion(num-1,IDs,scores);
+            insertion(num-1,IDs,scores,nowString,nowScore);
         }
     }
     for(int i = 0;i < num;i++){

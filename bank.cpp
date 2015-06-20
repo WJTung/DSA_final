@@ -136,6 +136,7 @@ pair<int, int> Bank::transfer(const string &ID, const int &money)
     else
     {
         (last_login->second).money -= money;
+        (i->second).money  += money;
         History *tmp = new History((last_login->first), ID, money, transferred_number);
         Transfer_history.push_back(tmp);
         transferred_number++;
