@@ -1,13 +1,13 @@
 #include "md5.h"
 #include "bank.h"
-bool Bank::existed(const string &ID)
+bool Bank::existed(char* const ID)
 {
-    map<string, Account>::iterator i = Account_map.find(ID);
+    map<char* const, Account, strCmp>::iterator i = Account_map.find(ID);
     return (i != Account_map.end());
 }
-int Bank::login(const string &ID, const string &password)
+int Bank::login(char* const ID, const string &password)
 {
-    map<string, Account>::iterator i = Account_map.find(ID);
+    map<char* const, Account, strCmp>::iterator i = Account_map.find(ID);
     string hash_password = md5(password);
     if(i == Account_map.end())
         return ID_NOT_FOUND;
@@ -19,22 +19,25 @@ int Bank::login(const string &ID, const string &password)
         return SUCCESS;
     }
 }
-int Bank::create(const string &ID, const string &password)
+int Bank::create(char* const ID, const string &password)
 {
-    map<string, Account>::iterator i = Account_map.find(ID);
+    map<char* const, Account, strCmp>::iterator i = Account_map.find(ID);
+    //printf("%s\n",i->second);
     if(i != Account_map.end())
         return ID_EXIST;
     else
     {
         Account new_account(ID, md5(password), 0);
         new_account.Account_history = new vector<History *>;
-        Account_map[ID] = new_account;
+        char *key = new char[strlen(ID)+1];
+        strcpy(key,ID);
+        Account_map[key] = new_account;
         return SUCCESS;
     }
 }
-int Bank::deleting(const string &ID, const string &password)
+int Bank::deleting(char* const ID, const string &password)
 {
-    map<string, Account>::iterator i = Account_map.find(ID);
+    map<char* const, Account, strCmp>::iterator i = Account_map.find(ID);
     string hash_password = md5(password);
     if(i == Account_map.end())
         return ID_NOT_FOUND;
@@ -43,13 +46,14 @@ int Bank::deleting(const string &ID, const string &password)
     else
     {
         Account_map.erase(i);
+        delete i->first;
         return SUCCESS;
     }
 }
-pair<int, int> Bank::merge(const string &ID1, const string &password1, const string &ID2, const string &password2)
+pair<int, int> Bank::merge(char* const ID1, const string &password1, char* const ID2, const string &password2)
 {
-    map<string, Account>::iterator i1 = Account_map.find(ID1);
-    map<string, Account>::iterator i2 = Account_map.find(ID2);
+    map<char* const, Account, strCmp>::iterator i1 = Account_map.find(ID1);
+    map<char* const, Account, strCmp>::iterator i2 = Account_map.find(ID2);
     string hash_password1 = md5(password1);
     string hash_password2 = md5(password2);
     std::pair<int, int> ans;
@@ -93,10 +97,10 @@ pair<int, int> Bank::merge(const string &ID1, const string &password1, const str
         }
         for(i = 0; i < h2; i++)
         {
-            if((i2->second).Account_history->at(i)->give_ID == ID2)
-                (i2->second).Account_history->at(i)->give_ID = ID1;
-            if((i2->second).Account_history->at(i)->get_ID == ID2)
-                (i2->second).Account_history->at(i)->get_ID = ID1;
+            if(strcmp((i2->second).Account_history->at(i)->give_ID , ID2) == 0)
+                strcpy((i2->second).Account_history->at(i)->give_ID , ID1);
+            if(strcmp((i2->second).Account_history->at(i)->get_ID , ID2) == 0)
+                strcpy((i2->second).Account_history->at(i)->get_ID , ID1);
         }
 //        vector<History*>().swap((i1->second).Account_history);
 //        vector<History*>().swap((i2->second).Account_history);
@@ -125,9 +129,9 @@ pair<int, int> Bank::withdraw(const int &money)
         return ans;
     }
 }
-pair<int, int> Bank::transfer(const string &ID, const int &money)
+pair<int, int> Bank::transfer(char* const ID, const int &money)
 {
-    map<string, Account>::iterator i = Account_map.find(ID);
+    map<char* const, Account, strCmp>::iterator i = Account_map.find(ID);
     std::pair<int, int> ans;
     if(i == Account_map.end())
         ans = std::make_pair(ID_NOT_FOUND, 0);
@@ -147,16 +151,14 @@ pair<int, int> Bank::transfer(const string &ID, const int &money)
     }
     return ans;
 }
-void Bank::find_and_print(const string &regexp)
+void Bank::find_and_print(const char* const regexp)
 {
-    map<string, Account>::iterator i;
+    map<char* const, Account, strCmp>::iterator i;
     bool first_output = 1;
     for(i = Account_map.begin(); i != Account_map.end(); ++i)
     {
-        string ID = i->first;
-        int length_regexp = regexp.length();
-        int length_ID = ID.length();
-        if(match(regexp, ID, 0, 0, length_regexp, length_ID))
+        char* const ID = i->first;
+        if(match(regexp, ID))
         {
             if(first_output)
             {
@@ -169,19 +171,19 @@ void Bank::find_and_print(const string &regexp)
     }
     cout<<endl;
 }
-int Bank::search_and_print(const string &ID)
+int Bank::search_and_print(const char* const ID)
 {
     vector<History *> *nowHistory = last_login->second.Account_history;
     //cout<<"last_login_ID: "<<last_login->first<<' ';
     bool noRecord = true;
     for(unsigned int i = 0;i < nowHistory->size();i++){
         //cout<<"history "<<i<<": "<<(nowHistory->at(i)->give_ID)<<"\t to \t"<<(nowHistory->at(i)->get_ID)<<"\t, money\t"<<(nowHistory->at(i)->money);
-        if(nowHistory->at(i)->give_ID == ID){
-            cout<<"From "<<ID<<' '<<nowHistory->at(i)->money<<endl;
+        if(strcmp(nowHistory->at(i)->give_ID , ID) == 0){
+            printf("From %s %d\n",ID,nowHistory->at(i)->money);
             noRecord = false;
         }
-        else if(nowHistory->at(i)->get_ID == ID){
-            cout<<"To "<<ID<<' '<<nowHistory->at(i)->money<<endl;
+        else if(strcmp(nowHistory->at(i)->get_ID , ID) == 0){
+            printf("To %s %d\n",ID,nowHistory->at(i)->money);
             noRecord = false;
         }
     }

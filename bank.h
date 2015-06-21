@@ -1,6 +1,7 @@
 #include <vector>
 #include <utility>
 #include <string>
+#include <string.h>
 #include <map>
 #define ID_NOT_FOUND -1
 #define WRONG_PS -2
@@ -8,49 +9,71 @@
 #define ID_EXIST -4
 #define FAIL -5
 #define NO_RECORD -6
+#define MAX_STRLEN 200
 using namespace std;
 struct History{
-    string give_ID;
-    string get_ID;
+    char* give_ID;
+    char* get_ID;
     int money;
     int transfer_time;
-    History(string give_id, string get_id, int amount, int time):give_ID(give_id), get_ID(get_id), money(amount), 
-    transfer_time(time){}
+    History(const char* const give_id,const char* const get_id, int amount, int time):money(amount),transfer_time(time){
+        give_ID = new char[MAX_STRLEN];
+        strcpy(give_ID,give_id);
+        get_ID = new char[MAX_STRLEN];
+        strcpy(get_ID,get_id);
+    }
+    ~History(){
+        delete give_ID;
+        delete get_ID;
+    }
 };
 struct Account{
-    string ID;
+    char* ID;
     string hash_password; 
     int money;
     std::vector<History *> *Account_history;
-    Account(string id,string hash,int m = 0):ID(id),hash_password(hash),money(m){}
-    Account(){}
+    Account(const char* const id,string hash,int m = 0):hash_password(hash),money(m){
+        ID = new char[strlen(id)+1];
+        strcpy(ID,id);
+    }
+    Account(){
+        ID = NULL;
+    }
+    ~Account(){
+        //delete ID;
+    }
+};
+struct strCmp{
+    bool operator() (char const *a,char const *b){
+        return strcmp(a,b) < 0;
+    }
 };
 
 class Bank{
     private:
         Account *iterator;
-        std::map<string, Account>::iterator mapIter;
-        std::map<string, Account> Account_map;
+        std::map<char* const, Account, strCmp>::iterator mapIter;
+        std::map<char* const, Account, strCmp> Account_map;
         std::vector<History*> Transfer_history;
-        std::map<string, Account>::iterator last_login;
+        std::map<char* const, Account, strCmp>::iterator last_login;
         int transferred_number;
     public:
         Bank(){transferred_number = 0;}
-        bool existed(const string&);
-        int login(const string& , const string&);
-        int create(const string& , const string&);
-        int deleting(const string& , const string&);
-        pair<int, int> merge(const string& , const string& , const string& , const string&);
+        bool existed(char* const);
+        int login(char* const , const string&);
+        int create(char* const, const string&);
+        int deleting(char* const, const string&);
+        pair<int, int> merge(char* const , const string& , char* const , const string&);
         int deposit(const int&);
         pair<int, int> withdraw(const int&);
-        pair<int, int> transfer(const string& , const int&);
-        void find_and_print(const string&);
-        int search_and_print(const string&);
+        pair<int, int> transfer(char* const , const int&);
+        void find_and_print(const char* const);
+        int search_and_print(const char* const);
         void setBeginIter(void);
         bool isEndIter(void);
         void nextIter(void);
         const Account* getIter(void);
 };
-void findUncreatedID(string&, int, Bank&);
-void findCreatedID(string&, int, Bank&);
-int match(const string &,const string &, int, int, const int, const int);
+void findUncreatedID(char*, int, Bank&);
+void findCreatedID(char*, int, Bank&);
+int match(const char* const,char* const);
