@@ -163,13 +163,13 @@ void Bank::find_and_print(const char* const regexp)
             if(first_output)
             {
                 first_output = 0;
-                cout<<ID;
+                printf("%s",ID);
             }
             else                
-                cout<<","<<ID;
+                printf(",%s",ID);
         }
     }
-    cout<<endl;
+    putchar('\n');
 }
 int Bank::search_and_print(const char* const ID)
 {
