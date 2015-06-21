@@ -74,6 +74,6 @@ class Bank{
         void nextIter(void);
         const Account* getIter(void);
 };
-void findUncreatedID(char*, int, Bank&);
-void findCreatedID(char*, int, Bank&);
+void findUncreatedID(const char* const, int, Bank&);
+void findCreatedID(const char* const, int, Bank&);
 int match(const char* const,char* const);

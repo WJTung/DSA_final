@@ -1,5 +1,6 @@
 #include "md5.h"
 #include "bank.h"
+#include <stdio.h>
 bool Bank::existed(char* const ID)
 {
     map<char* const, Account, strCmp>::iterator i = Account_map.find(ID);
