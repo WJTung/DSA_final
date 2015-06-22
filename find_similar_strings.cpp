@@ -18,16 +18,28 @@ int findMinLen(int len,int score){                      //在差值=score下，�
             return i;
     return len;
 }
-int getNewLen(int originLen,int score){                 //測試是否有後綴長度剛好等於score
-    int i;
+int getAddLen(int score){                 //測試是否有後綴長度剛好等於score
+    int left = 1,right = score + 1,mid;
+    while(left != right - 1){
+        mid = (left+right)/2;
+        if(sum1toN(mid) > score)
+            right = mid;
+        else
+            left = mid;
+    }
+    if(sum1toN(left) == score)
+        return left;
+    else
+        return -1;
+    /*int i;
     for(i = 1;sum1toN(i) < score;i++);
     if(sum1toN(i) == score)
         return originLen + i;
     else 
-        return -1;
+        return -1;*/
 }
-void add(string &now,int originLen,int nowLen){             
-    for(int idx = nowLen - 1; idx > originLen; idx--){
+void add(char *now,int nowLen){             
+    for(int idx = nowLen - 1; idx > 0; idx--){
         if(now[idx] != word[WORD_LEN - 1]){
             now[idx]++;
             return ;
@@ -35,49 +47,59 @@ void add(string &now,int originLen,int nowLen){
         else
             now[idx] = word[0];
     }
-    now[originLen]++;
-    if(now[originLen] > word[WORD_LEN - 1])
-        now[originLen] = word[0];
+    now[0]++;
+    if(now[0] > word[WORD_LEN - 1])
+        now[0] = word[0];
     return;
 }
 
 //字串>原長時，要窮舉字串尾的排組   
-int printAllPostfix(string &origin,int originLen,string &now,int score,int needed,Bank &bank){
-    int finded = 0,newLen = getNewLen(originLen,score);
-    //cout<<" newLen: "<<newLen<<' ';
-    if(newLen == -1) return 0;
+int printAllPostfix(int originLen,char *now,int score,int needed,Bank &bank){
+    //printf("YO ");
+    int finded = 0,addLen = getAddLen(score);
+    char *addNow = NULL;
+    if(addLen < 0) return 0;
     else{
-        for(int i = 0;i < newLen - originLen;i++)
-            now += word[0];
+        addNow = new char[addLen+1];
+        memset(addNow,word[0],sizeof(char) * addLen);
+        addNow[addLen] = '\0';
     }
-    for(string prv = now; prv <= now && finded < needed; prv = now,add(now,originLen,newLen)){
+    for(char *addPrv = addNow; strcmp(addPrv,addNow) <= 0 && finded < needed; addPrv = addNow,add(addNow,addLen)){
+        strcat(now,addNow);
         if(!bank.existed(now)){
-            cout<<now;
+            printf("%s",now);
             finded++;
             if(finded < needed)
-                cout<<',';
+                putchar(',');
         }
+        now[originLen] = '\0';
     }
-    now = now.substr(0,originLen);
+    //printf("OY ");
+    if(addNow != NULL)
+        delete addNow;
     return finded;
 }
 //output 同score字串，字典序由小到大
-int printSameScoreString(string &origin,int originLen,string &now,int nowIdx,int score,int needed,int changeNum,Bank &bank){
+int printSameScoreString(const char* const origin,int originLen,char *now,int nowIdx,
+                         int score,int needed,int changeNum,Bank &bank){
     int finded = 0;
     if(nowIdx == originLen){            //超過原長，如果某長度可以符合score，直接字典序輸出
-        finded += printAllPostfix(origin,originLen,now,score,needed - finded,bank);
+        finded += printAllPostfix(originLen,now,score,needed - finded,bank);
         return finded;
     }
     if(nowIdx != 0 && sum1toN(originLen - nowIdx) - changeNum * (originLen - nowIdx) == score){ //刪掉idx後string剛好符合score
-        string shortNow = now.substr(0,nowIdx);
+        char *shortNow = new char[MAX_STRLEN];
+        strncpy(shortNow,now,nowIdx);
+        shortNow[nowIdx] = '\0';
         if(!bank.existed(shortNow)){
-            cout<<shortNow;
+            printf("%s",shortNow);
             finded++;
             if(finded < needed)
-                cout<<',';
+                putchar(',');
         }
         if(finded == needed)
             return finded;
+        delete shortNow;
     }
 
     int wordIdx = 0;
@@ -91,10 +113,10 @@ int printSameScoreString(string &origin,int originLen,string &now,int nowIdx,int
         for(;finded < needed && word[wordIdx] < origin[nowIdx];wordIdx++){
             now[nowIdx] = word[wordIdx];
             if(!bank.existed(now)){
-                cout<<now;
+                printf("%s",now);
                 finded++;
                 if(finded < needed)
-                    cout<<',';
+                    putchar(',');
             }
         }
     }
@@ -117,10 +139,10 @@ int printSameScoreString(string &origin,int originLen,string &now,int nowIdx,int
         for(wordIdx = wordIdx + 1;finded < needed && wordIdx < WORD_LEN;wordIdx++){
             now[nowIdx] = word[wordIdx];
             if(!bank.existed(now)){
-                cout<<now;
+                printf("%s",now);
                 finded++;
                 if(finded < needed)
-                    cout<<',';
+                    putchar(',');
             }
         }
     }
@@ -128,26 +150,23 @@ int printSameScoreString(string &origin,int originLen,string &now,int nowIdx,int
     return finded;
 }
 /////////////////////////////////find uncreated ID main function//////////////////////////////////
-void findUncreatedID(string &origin,int needNum,Bank &bank){                        //窮舉所有可能score,find uncreated ID
+void findUncreatedID(const char* const origin,int needNum,Bank &bank){      //窮舉所有可能score,find uncreated ID
     int finded = 0;
+    int originLen = strlen(origin);
+    char *now = new char[MAX_STRLEN];
     for(int score = 1;finded < needNum && score < MAX_SCORE; score++){
-        string now = origin;
-        finded += printSameScoreString(origin,origin.length(),now,0,score,needNum - finded,0,bank);
+        strcpy(now,origin);
+        finded += printSameScoreString(origin,originLen,now,originLen - score,score,needNum - finded,0,bank);
     }
     putchar('\n');
-/*
-    if(finded == needNum)
-        printf("successfully find %d strings\n",needNum);
-    else
-        printf("only find %d strings\n",finded);
-*/
+    delete now;
     return ;
 }
 
 ////////////////////////////////////////find created ID////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////
-int getScore(string &sa,string &sb){
-    int na = sa.length(),nb = sb.length();
+int getScore(const char* const sa,const char* const sb){
+    int na = strlen(sa),nb = strlen(sb);
     int score = sum1toN(ABS(na-nb));
     int minLen = min(na,nb);
     for(int i = 0;i < minLen;i++){
@@ -156,37 +175,35 @@ int getScore(string &sa,string &sb){
     }
     return score;
 }
-void insertion(int idx,string *IDs,int *scores){
-    if(idx == 0) return ;
-    if(scores[idx-1] > scores[idx] || (scores[idx-1] == scores[idx] && IDs[idx-1] > IDs[idx])){
-        swap(scores[idx-1],scores[idx]);
-        swap(IDs[idx-1],IDs[idx]);
-        insertion(idx-1,IDs,scores);
+void insertion(int idx,char *IDs[],int *scores,char *nowString,int nowScore){
+    while(idx > 0 && (scores[idx-1] > nowScore || (scores[idx-1] == nowScore && strcmp(IDs[idx-1],nowString) > 0 ) ) ){
+        IDs[idx] = IDs[idx-1];
+        scores[idx] = scores[idx-1];
+        idx--;
     }
+    IDs[idx] = nowString;
+    scores[idx] = nowScore;
     return ;
 }
 ////////////////////////////////find created ID main function//////////////////////////////////////////
-void findCreatedID(string &origin,int needNum,Bank &bank){                          //窮舉已存在帳號,找出score最小ID needNum個
-    string IDs[needNum];
+void findCreatedID(const char* const origin,int needNum,Bank &bank){    //窮舉已存在帳號,找出score最小ID needNum個
+    char *IDs[needNum];
     int scores[needNum];
     int num = 0;
     for(bank.setBeginIter(); bank.isEndIter() == false; bank.nextIter()){
-        string nowString = bank.getIter()->ID;
+        char *nowString = bank.getIter()->ID;
         int nowScore = getScore(origin,nowString);
+        //printf("%s---*",nowString);
         if(num < needNum){
-            IDs[num] = nowString;
-            scores[num] = nowScore;
-            insertion(num,IDs,scores);
+            insertion(num,IDs,scores,nowString,nowScore);
             num++;
         }
-        else if(scores[num-1] > nowScore || (scores[num-1] == nowScore && IDs[num-1] > nowString)){
-            IDs[num-1] = nowString;
-            scores[num-1] = nowScore;
-            insertion(num-1,IDs,scores);
+        else if(scores[num-1] > nowScore || (scores[num-1] == nowScore && strcmp(IDs[num-1] , nowString) > 0)){
+            insertion(num-1,IDs,scores,nowString,nowScore);
         }
     }
     for(int i = 0;i < num;i++){
-        cout<<IDs[i];
+        printf("%s",IDs[i]);
         if(i < num - 1)
             putchar(',');
     }

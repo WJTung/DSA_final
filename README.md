@@ -1,5 +1,5 @@
 master: functions that can be used in any data structure, template of the bank
-
+master-char: the char* version of master
 branch: map, hash table, skip list, RB tree(?), ....
 
 note: 
