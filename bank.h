@@ -2,6 +2,7 @@
 #include <utility>
 #include <string>
 #include <string.h>
+#include <map>
 #define ID_NOT_FOUND -1
 #define WRONG_PS -2
 #define SUCCESS -3
@@ -42,16 +43,29 @@ struct Account{
         //delete ID;
     }
 };
-struct strCmp{
-    bool operator() (char const *a,char const *b){
-        return strcmp(a,b) < 0;
-    }
-};
-
+class Node{
+    private:
+        Account *current_account;
+        std::map<char, Node*> children_map;
+    public:
+        Node() { current_account = nullptr; }
+        Node(Account *account) { current_account = account; }
+        ~Node() {}
+}
+class Trie{
+    private:
+        Node *root;
+    public:
+        Trie();
+        ~Trie();
+}
 class Bank{
     private:
         Account *iterator;
+        std::map<char* const, Account, strCmp>::iterator mapIter;
+        Trie Account_trie;
         std::vector<History*> Transfer_history;
+        Account *last_login;
         int transferred_number;
     public:
         Bank(){transferred_number = 0;}
@@ -70,6 +84,6 @@ class Bank{
         void nextIter(void);
         const Account* getIter(void);
 };
-void findUncreatedID(const char* const, int, Bank&);
-void findCreatedID(const char* const, int, Bank&);
+void findUncreatedID(char*, int, Bank&);
+void findCreatedID(char*, int, Bank&);
 int match(const char* const,char* const);
