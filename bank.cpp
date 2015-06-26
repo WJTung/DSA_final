@@ -15,10 +15,10 @@ Ternary_tree::~Ternary_tree()
 {
     // Free memory
 }
-Account *Ternary_tree::find(char* const ID)
+Account *Ternary_tree::find(const char *ID)
 {
     Node *current = root;
-    while((*ID) != '/0')
+    while((*ID) != '\0')
     {
         char current_char = (*ID); 
         current = current->find_child(current_char);
@@ -28,10 +28,10 @@ Account *Ternary_tree::find(char* const ID)
     }
     return current->current_account;
 }
-void Ternary_tree::insert(char *ID, Account *new_account)
+void Ternary_tree::insert(const char *ID, Account *new_account)
 {
     Node *current = root;
-    while((*ID) != '/0')
+    while((*ID) != '\0')
     {
         char current_char = (*ID);
         Node *child = current->find_child(current_char);
@@ -44,23 +44,23 @@ void Ternary_tree::insert(char *ID, Account *new_account)
         current = child;
         ID++;
     }
-    current.current_account = new_account;
+    current->current_account = new_account;
 }
-void Ternary_tree::erase(char *ID)
+void Ternary_tree::erase(const char *ID)
 {
     Node *current = root;
-    while((*ID) != '/0')
+    while((*ID) != '\0')
     {
         current = current->find_child((*ID));
         ID++;
     }
     current->current_account = nullptr;
 }
-bool Bank::existed(char* const ID)
+bool Bank::existed(const char *ID)
 {
     return (Account_ternary_tree.find(ID) != nullptr);
 }
-int Bank::login(char* const ID, const string &password)
+int Bank::login(const char *ID, const string &password)
 {
     Account *i = Account_ternary_tree.find(ID);
     string hash_password = md5(password);
@@ -74,10 +74,10 @@ int Bank::login(char* const ID, const string &password)
         return SUCCESS;
     }
 }
-int Bank::create(char* const ID, const string &password)
+int Bank::create(const char *ID, const string &password)
 {
     Account *i = Account_ternary_tree.find(ID);
-    if(i != Account_map.end())
+    if(i != nullptr)
         return ID_EXIST;
     else
     {
@@ -88,7 +88,7 @@ int Bank::create(char* const ID, const string &password)
         return SUCCESS;
     }
 }
-int Bank::deleting(char* const ID, const string &password)
+int Bank::deleting(const char *ID, const string &password)
 {
     Account *i = Account_ternary_tree.find(ID);
     string hash_password = md5(password);
@@ -102,10 +102,10 @@ int Bank::deleting(char* const ID, const string &password)
         return SUCCESS;
     }
 }
-pair<int, int> Bank::merge(char* const ID1, const string &password1, char* const ID2, const string &password2)
+pair<int, int> Bank::merge(const char *ID1, const string &password1, const char *ID2, const string &password2)
 {
     Account *i1 = Account_ternary_tree.find(ID1);
-    Account *i2 = Account_ternary.find(ID2);
+    Account *i2 = Account_ternary_tree.find(ID2);
     string hash_password1 = md5(password1);
     string hash_password2 = md5(password2);
     std::pair<int, int> ans;
@@ -121,7 +121,7 @@ pair<int, int> Bank::merge(char* const ID1, const string &password1, char* const
     {
         int i, hi1=0, hi2=0;
         i1->money += i2->money;
-        int h1 = i1->.Account_history->size(); 
+        int h1 = i1->Account_history->size(); 
         int h2 = i2->Account_history->size(); 
         std::vector<History *> *new_Account_history = new vector<History *>;
         while(hi1 != h1 && hi2 != h2)
@@ -156,9 +156,9 @@ pair<int, int> Bank::merge(char* const ID1, const string &password1, char* const
         }
 //        vector<History*>().swap((i1->second).Account_history);
 //        vector<History*>().swap((i2->second).Account_history);
-        (i1->second).Account_history = new_Account_history;
-        Account_ternary_tree.erase(i2);
-        ans = std::make_pair (SUCCESS, (i1->second).money);
+        i1->Account_history = new_Account_history;
+        Account_ternary_tree.erase(ID2);
+        ans = std::make_pair (SUCCESS, i1->money);
     }
     return ans;
 }
@@ -181,51 +181,36 @@ pair<int, int> Bank::withdraw(const int &money)
         return ans;
     }
 }
-pair<int, int> Bank::transfer(char* const ID, const int &money)
+pair<int, int> Bank::transfer(const char *ID, const int &money)
 {
     Account *i = Account_ternary_tree.find(ID);
     std::pair<int, int> ans;
     if(i == nullptr)
         ans = std::make_pair(ID_NOT_FOUND, 0);
-    else if((last_login->second).money < money)
+    else if(last_login->money < money)
         ans = std::make_pair(FAIL, last_login->money);
     else
     {
         last_login->money -= money;
-        i->second.money  += money;
-        History *tmp = new History((last_login->first), ID, money, transferred_number);
+        i->money  += money;
+        History *tmp = new History(last_login->ID, ID, money, transferred_number);
         Transfer_history.push_back(tmp);
         transferred_number++;
         History *new_history = Transfer_history.at(Transfer_history.size() - 1);
-        (last_login->second).Account_history->push_back(new_history);
-        (i->second).Account_history->push_back(new_history);
+        last_login->Account_history->push_back(new_history);
+        i->Account_history->push_back(new_history);
         ans = std::make_pair(SUCCESS, last_login->money);
     }
     return ans;
 }
-void Bank::find_and_print(const char* const regexp)
+void Bank::find_and_print(const char *regexp)
 {
-    map<char* const, Account, strCmp>::iterator i;
-    bool first_output = 1;
-    for(i = Account_map.begin(); i != Account_map.end(); ++i)
-    {
-        char* const ID = i->first;
-        if(match(regexp, ID))
-        {
-            if(first_output)
-            {
-                first_output = 0;
-                printf("%s",ID);
-            }
-            else                
-                printf(",%s",ID);
-        }
-    }
+    find_match_ID(Account_ternary_tree.get_root(), regexp);
     putchar('\n');
 }
-int Bank::search_and_print(const char* const ID)
+int Bank::search_and_print(const char *ID)
 {
-    vector<History *> *nowHistory = last_login->second.Account_history;
+    vector<History *> *nowHistory = last_login->Account_history;
     //cout<<"last_login_ID: "<<last_login->first<<' ';
     bool noRecord = true;
     for(unsigned int i = 0;i < nowHistory->size();i++){
@@ -242,18 +227,4 @@ int Bank::search_and_print(const char* const ID)
     if(noRecord)
         return NO_RECORD;
     return SUCCESS;
-}
-void Bank::setBeginIter(void){
-    mapIter = Account_map.begin();
-    return ;
-}
-bool Bank::isEndIter(void){
-    return mapIter == Account_map.end();
-}
-void Bank::nextIter(void){
-    ++mapIter;
-    return ;
-}
-const Account* Bank::getIter(void){
-    return &(mapIter->second);
 }

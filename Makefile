@@ -10,7 +10,7 @@ CPPFLAGS = -O2 -std=c++11 -Wall
 
 all:main
 
-main: main.o bank.o find_similar_strings.o md5.o match_char.o 
+main: main.o bank.o find_similar_strings.o md5.o match_ternary_tree.o 
 	g++ main.o bank.o find_similar_strings.o md5.o match_char.o -o final_project
 main.o: main.cpp bank.h
 	g++ $(CPPFLAGS) $< -c -o $@

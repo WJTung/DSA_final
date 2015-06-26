@@ -32,7 +32,7 @@ struct Account{
     string hash_password; 
     int money;
     std::vector<History *> *Account_history;
-    Account(const char* const id,string hash,int m = 0):hash_password(hash),money(m){
+    Account(const char *id,string hash,int m = 0):hash_password(hash),money(m){
         ID = new char[strlen(id)+1];
         strcpy(ID,id);
         Account_history = new std::vector<History *>;
@@ -50,44 +50,40 @@ class Node{
         std::map<char, Node*> children_map;
     public:
         Node() { current_account = nullptr; }
-        ~Node() { children_map.clear() }
+        ~Node() { children_map.clear(); }
         Node *find_child(char);
-}
+        friend class Ternary_tree;
+};
 class Ternary_tree{
     private:
         Node *root;
     public:
         Ternary_tree();
         ~Ternary_tree();
-        Account *find(char* const);
-        void insert(char*, Account*);
-        void erase(char*);
-}
+        Account *find(const char *);
+        void insert(const char *, Account*);
+        void erase(const char *);
+        Node *get_root();
+};
 class Bank{
     private:
-        Account *iterator;
-        std::map<char* const, Account, strCmp>::iterator mapIter;
-        Trie Account_trie;
+        Ternary_tree Account_ternary_tree;
         std::vector<History*> Transfer_history;
         Account *last_login;
         int transferred_number;
     public:
         Bank(){transferred_number = 0;}
-        bool existed(char* const);
-        int login(char* const , const string&);
-        int create(char* const, const string&);
-        int deleting(char* const, const string&);
-        pair<int, int> merge(char* const , const string& , char* const , const string&);
+        bool existed(const char *);
+        int login(const char *, const string&);
+        int create(const char *, const string&);
+        int deleting(const char *, const string&);
+        pair<int, int> merge(const char *, const string& , const char *, const string&);
         int deposit(const int&);
         pair<int, int> withdraw(const int&);
-        pair<int, int> transfer(char* const , const int&);
-        void find_and_print(const char* const);
-        int search_and_print(const char* const);
-        void setBeginIter(void);
-        bool isEndIter(void);
-        void nextIter(void);
-        const Account* getIter(void);
+        pair<int, int> transfer(const char *, const int&);
+        void find_and_print(const char *);
+        int search_and_print(const char *);
 };
-void findUncreatedID(char*, int, Bank&);
-void findCreatedID(char*, int, Bank&);
-int match(const char* const,char* const);
+void findUncreatedID(char *, int, Bank&);
+void findCreatedID(char *, int, Bank&);
+void find_match_ID(Node *, const char *);
