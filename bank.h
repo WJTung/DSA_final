@@ -100,10 +100,11 @@ class Bank{
         int deposit(const int&);
         pair<int, int> withdraw(const int&);
         pair<int, int> transfer(char* const , const int&);
-        void find_and_print(const char* const);
+        void find_and_print(const char *);
         int search_and_print(const char* const);
         friend void findCreatedID(const char* const, int, Bank&);
 };
 void findUncreatedID(const char* const, int, Bank&);
 //void findCreatedID(char*, int, Bank&);
-int match(const char* const,char* const);
+void find_match_ID(Node *, const char *);
+int char2Index(char c);

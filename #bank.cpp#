@@ -213,9 +213,24 @@ pair<int, int> Bank::transfer(char* const ID, const int &money)
     }
     return ans;
 }
-void Bank::find_and_print(const char *regexp)
+void Bank::find_and_print(const char* const regexp)
 {
-    find_match_ID(Account_trie.getRoot(), regexp);
+    /*map<char* const, Account, strCmp>::iterator i;
+    bool first_output = 1;
+    for(i = Account_map.begin(); i != Account_map.end(); ++i)
+    {
+        char* const ID = i->first;
+        if(match(regexp, ID))
+        {
+            if(first_output)
+            {
+                first_output = 0;
+                printf("%s",ID);
+            }
+            else                
+                printf(",%s",ID);
+        }
+    }*/
     putchar('\n');
 }
 int Bank::search_and_print(const char* const ID)
@@ -226,7 +241,7 @@ int Bank::search_and_print(const char* const ID)
         if(strcmp(nowHistory->at(i)->give_ID , ID) == 0){
             printf("From %s %d\n",ID,nowHistory->at(i)->money);
             noRecord = false;
-        }
+t        }
         else if(strcmp(nowHistory->at(i)->get_ID , ID) == 0){
             printf("To %s %d\n",ID,nowHistory->at(i)->money);
             noRecord = false;
