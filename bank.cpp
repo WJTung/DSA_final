@@ -7,9 +7,9 @@ Node *Node::find_child(char c)
         return nullptr;
     return (i->second);
 }
-Account *trie::find(char* const ID)
+Account *Ternary_tree::find(char* const ID)
 {
-    Node *current = Account_trie.root;
+    Node *current = root;
     char *current_char = ID;
     while((*current_char) != '/0')
     {
@@ -20,9 +20,38 @@ Account *trie::find(char* const ID)
     }
     return current->current_account;
 }
-void trie::insert(char *key, Account *new_account)
+void Ternary_tree::insert(char *key, Account *new_account)
 {
-
+    Node *current = root;
+    char *ID = key;
+    while((*ID) != '/0')
+    {
+        char current_char = *ID;
+        Node *child = current->find_child(current_char);
+        if(child == nullptr)
+        {
+            Node *tmp = new Node();
+            current->children_map[current_char] = tmp;
+            current = tmp;
+        }
+        current = child;
+        ID++;
+    }
+    current.current_account = new_account;
+}
+void Ternary_tree::erase(char *key)
+{
+    Node *current = root;
+    char *ID = key;
+    while((*ID) != '/0')
+    {
+        current = current->find_child((*ID));
+        ID++;
+    }
+    if(current->children_map.size() == 0)
+        delete current;
+    current->current_account = nullptr;
+}
 bool Bank::existed(char* const ID)
 {
     return (Account_trie.find(ID) != nullptr);
@@ -48,17 +77,17 @@ int Bank::create(char* const ID, const string &password)
         return ID_EXIST;
     else
     {
-        Account *new_account = new (ID, md5(password), 0);
+        Account *new_account = new Account(ID, md5(password), 0);
         new_account->Account_history = new vector<History *>;
         char *key = new char[strlen(ID)+1];
         strcpy(key,ID);
-        Account_trie.insert(key, new_account);
+        Account_ternary_tree.insert(key, new_account);
         return SUCCESS;
     }
 }
 int Bank::deleting(char* const ID, const string &password)
 {
-    Account *i = Account_trie.find(ID);
+    Account *i = Account_ternary_tree.find(ID);
     string hash_password = md5(password);
     if(i == nullptr)
         return ID_NOT_FOUND;
@@ -66,15 +95,15 @@ int Bank::deleting(char* const ID, const string &password)
         return WRONG_PS;
     else
     {
-        Account_trie.erase(i);
+        Account_ternary_tree.erase(i);
         delete i->first;
         return SUCCESS;
     }
 }
 pair<int, int> Bank::merge(char* const ID1, const string &password1, char* const ID2, const string &password2)
 {
-    Account *i1 = Account_trie.find(ID1);
-    Account *i2 = Account_trie.find(ID2);
+    Account *i1 = Account_ternary_tree.find(ID1);
+    Account *i2 = Account_ternary.find(ID2);
     string hash_password1 = md5(password1);
     string hash_password2 = md5(password2);
     std::pair<int, int> ans;
@@ -126,7 +155,7 @@ pair<int, int> Bank::merge(char* const ID1, const string &password1, char* const
 //        vector<History*>().swap((i1->second).Account_history);
 //        vector<History*>().swap((i2->second).Account_history);
         (i1->second).Account_history = new_Account_history;
-        Account_trie.erase(i2);
+        Account_ternary_tree.erase(i2);
         ans = std::make_pair (SUCCESS, (i1->second).money);
     }
     return ans;
@@ -146,13 +175,13 @@ pair<int, int> Bank::withdraw(const int &money)
     }
     else
     {
-        std::pair<int, int> ans = std::make_pair(FAIL, (last_login->second).money);
+        std::pair<int, int>ans = std::make_pair(FAIL, (last_login->second).money);
         return ans;
     }
 }
 pair<int, int> Bank::transfer(char* const ID, const int &money)
 {
-    Account *i = Account_trie.find(ID);
+    Account *i = Account_ternary_tree.find(ID);
     std::pair<int, int> ans;
     if(i == nullptr)
         ans = std::make_pair(ID_NOT_FOUND, 0);

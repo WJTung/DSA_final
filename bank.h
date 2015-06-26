@@ -49,15 +49,14 @@ class Node{
         std::map<char, Node*> children_map;
     public:
         Node() { current_account = nullptr; }
-        Node(Account *account) { current_account = account; }
-        ~Node() {}
+        ~Node() { children_map.clear() }
 }
-class Trie{
+class Ternary_tree{
     private:
         Node *root;
     public:
-        Trie();
-        ~Trie();
+        Ternary_tree();
+        ~Ternary_tree();
 }
 class Bank{
     private:
