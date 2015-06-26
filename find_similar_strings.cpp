@@ -185,13 +185,9 @@ void insertion(int idx,char *IDs[],int *scores,char *nowString,int nowScore){
     scores[idx] = nowScore;
     return ;
 }
-////////////////////////////////find created ID main function//////////////////////////////////////////
-void findCreatedID(const char* const origin,int needNum,Bank &bank){    //窮舉已存在帳號,找出score最小ID needNum個
-    char *IDs[needNum];
-    int scores[needNum];
-    int num = 0;
-    for(bank.setBeginIter(); bank.isEndIter() == false; bank.nextIter()){
-        char *nowString = bank.getIter()->ID;
+void treeTraversal(Node* now,const char* const origin,int &num,int needNum,char* IDs[],int *scores){
+    if(now->current_account != nullptr){
+        char *nowString = now->current_account->ID;
         int nowScore = getScore(origin,nowString);
         //printf("%s---*",nowString);
         if(num < needNum){
@@ -201,7 +197,20 @@ void findCreatedID(const char* const origin,int needNum,Bank &bank){    //窮舉
         else if(scores[num-1] > nowScore || (scores[num-1] == nowScore && strcmp(IDs[num-1] , nowString) > 0)){
             insertion(num-1,IDs,scores,nowString,nowScore);
         }
+ 
     }
+    for(int i = 0;i < LETTER_NUM;i++){
+        if(now->children[i] != nullptr)
+            treeTraversal(now->children[i],origin,num,needNum,IDs,scores);
+    }
+    return;
+}
+////////////////////////////////find created ID main function//////////////////////////////////////////
+void findCreatedID(const char* const origin,int needNum,Bank &bank){    //窮舉已存在帳號,找出score最小ID needNum個
+    char *IDs[needNum];
+    int scores[needNum];
+    int num = 0;
+    treeTraversal(bank.Account_trie.getRoot(),origin,num,needNum,IDs,scores);
     for(int i = 0;i < num;i++){
         printf("%s",IDs[i]);
         if(i < num - 1)

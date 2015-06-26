@@ -9,12 +9,12 @@ int char2Index(char c){
     else
         return 36 + c - 'a';
 }
-Node* Trie::findNode(char* const ID){                   //是否有此ID的trie節點(不一定有account)
+Node* Trie::findNode(char const * ID){                   //是否有此ID的trie節點(不一定有account)
     Node *current = root;
-    char *current_char = ID;
-    while((*current_char) != '/0')
+    char const * current_char = ID;
+    while((*current_char) != '\0')
     {
-        Node* nxt = current->children[char2Index(current_char)];
+        Node* nxt = current->children[char2Index(*current_char)];
         if(nxt == nullptr)
             return nullptr;
         else
@@ -23,7 +23,7 @@ Node* Trie::findNode(char* const ID){                   //是否有此ID的trie�
     }
     return current;
 }
-Account* Trie::find(char* const ID)
+Account* Trie::find(char const * ID)
 {
     Node* nowNode = findNode(ID);
     if(nowNode == nullptr)
@@ -31,22 +31,30 @@ Account* Trie::find(char* const ID)
     else
         return findNode(ID)->current_account;
 }
-Account* Trie::insert(char* const ID,string &hash_password,int money)       //ID_EXISTED : return nullptr
+Account* Trie::insert(char const * ID,string hash_password,int money)       //ID_EXISTED : return nullptr
 {
     Node* current = root;
-    char* current_char = *ID;
-    while((*current_char) != '/0')
+    char const * current_char = ID;
+    while((*current_char) != '\0')
     {
-        Node* nxt = current->children[char2Index(current_char)];
+        Node* nxt = current->children[char2Index(*current_char)];
         if(nxt == nullptr){
-            nxt = new Node();
+            nxt = current->children[char2Index(*current_char)] = new Node(nullptr,current);
         }
-        else
-            current = nxt;
+        current = nxt;
         current_char++;
     }
     if(current->current_account != nullptr)
         return nullptr;
+    else
+    {
+        Node* prev = current -> parent;
+        while(prev != nullptr)
+        {
+            prev -> num_children++;
+            prev = prev -> parent;
+        }
+    }
     current->current_account = new Account(ID,hash_password,money);
     return current->current_account;
 }
@@ -69,7 +77,7 @@ int Bank::login(char* const ID, const string &password)
         return SUCCESS;
     }
 }
-int Bank::create(char* const ID, const string &password)
+int Bank::create(char const * ID, const string &password)
 {
     Account *i = Account_trie.insert(ID,md5(password),0);
     if(i == nullptr)
@@ -77,7 +85,7 @@ int Bank::create(char* const ID, const string &password)
     else
         return SUCCESS;
 }
-int Bank::deleting(char* const ID, const string &password)
+int Bank::deleting(char const * ID, const string &password)
 {
     Node *i = Account_trie.findNode(ID);
     string hash_password = md5(password);
@@ -87,8 +95,19 @@ int Bank::deleting(char* const ID, const string &password)
         return WRONG_PS;
     else
     {
-        delete i->current_account;
-        i->current_account = nullptr;
+        Node *current = i, *prev = current -> parent;
+        delete current->current_account;
+        current->current_account = nullptr;
+        ID += strlen(ID) - 1;
+        while (prev != nullptr && current -> num_children == 0 && current -> current_account == nullptr){
+            delete current;
+            prev -> num_children--;
+            prev -> children[char2Index(*ID)] = nullptr;
+            current = prev;
+            prev = prev -> parent;
+            ID--;
+        }
+        
         return SUCCESS;
     }
 }
@@ -150,7 +169,7 @@ pair<int, int> Bank::merge(char* const ID1, const string &password1, char* const
         i1->Account_history = new_Account_history;
         delete i2;
         node_i2->current_account = nullptr;
-        ans = std::make_pair (SUCCESS, (i1->second).money);
+        ans = std::make_pair (SUCCESS, i1->money);
     }
     return ans;
 }
@@ -196,7 +215,7 @@ pair<int, int> Bank::transfer(char* const ID, const int &money)
 }
 void Bank::find_and_print(const char* const regexp)
 {
-    map<char* const, Account, strCmp>::iterator i;
+    /*map<char* const, Account, strCmp>::iterator i;
     bool first_output = 1;
     for(i = Account_map.begin(); i != Account_map.end(); ++i)
     {
@@ -211,7 +230,7 @@ void Bank::find_and_print(const char* const regexp)
             else                
                 printf(",%s",ID);
         }
-    }
+    }*/
     putchar('\n');
 }
 int Bank::search_and_print(const char* const ID)
@@ -231,18 +250,4 @@ int Bank::search_and_print(const char* const ID)
     if(noRecord)
         return NO_RECORD;
     return SUCCESS;
-}
-void Bank::setBeginIter(void){
-    trie_iter = Account_trie.root;
-    return ;
-}
-bool Bank::isEndIter(void){
-    return trie_iter == nullptr;
-}
-void Bank::nextIter(void){
-    if(trie_iter)
-    return ;
-}
-const Account* Bank::getIter(void){
-    return trie_iter->current_account;
 }

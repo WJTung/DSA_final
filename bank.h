@@ -48,9 +48,13 @@ struct Account{
 };
 struct Node{
     Account *current_account;
+    Node* parent;
+    int num_children;
     Node* children[LETTER_NUM];
-    Node(Account *account = nullptr){ 
+    Node(Account *account = nullptr, Node* p = nullptr){ 
         current_account = account;
+        parent = p;
+        num_children = 0;
         for(int i = 0;i < LETTER_NUM;i++)
             children[i] = nullptr;
     }
@@ -64,16 +68,24 @@ class Trie{
     private:
         Node *root;
     public:
-        Trie(Node* r = nullptr){
+        Trie(){
+            root = new Node(nullptr,nullptr);
+        }
+        Trie(Node* r){
             root = r;
         }
         ~Trie(){
             delete root;
         }
-}
+        Node* const getRoot(void){
+            return root;
+        }
+        Node* findNode(char const *);
+        Account* find(char const *);
+        Account* insert(char const *,string,int);
+};
 class Bank{
     private:
-        Node* trie_iter;
         Trie Account_trie;
         std::vector<History*> Transfer_history;
         Account *last_login;
@@ -82,19 +94,16 @@ class Bank{
         Bank(){transferred_number = 0;}
         bool existed(char* const);
         int login(char* const , const string&);
-        int create(char* const, const string&);
-        int deleting(char* const, const string&);
+        int create(char const *, const string&);
+        int deleting(char const *, const string&);
         pair<int, int> merge(char* const , const string& , char* const , const string&);
         int deposit(const int&);
         pair<int, int> withdraw(const int&);
         pair<int, int> transfer(char* const , const int&);
         void find_and_print(const char* const);
         int search_and_print(const char* const);
-        void setBeginIter(void);
-        bool isEndIter(void);
-        void nextIter(void);
-        const Account* getIter(void);
+        friend void findCreatedID(const char* const, int, Bank&);
 };
-void findUncreatedID(char*, int, Bank&);
-void findCreatedID(char*, int, Bank&);
+void findUncreatedID(const char* const, int, Bank&);
+//void findCreatedID(char*, int, Bank&);
 int match(const char* const,char* const);
