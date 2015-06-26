@@ -35,6 +35,7 @@ struct Account{
     Account(const char* const id,string hash,int m = 0):hash_password(hash),money(m){
         ID = new char[strlen(id)+1];
         strcpy(ID,id);
+        Account_history = new std::vector<History *>;
     }
     Account(){
         ID = NULL;
@@ -50,6 +51,7 @@ class Node{
     public:
         Node() { current_account = nullptr; }
         ~Node() { children_map.clear() }
+        Node *find_child(char);
 }
 class Ternary_tree{
     private:
@@ -57,6 +59,9 @@ class Ternary_tree{
     public:
         Ternary_tree();
         ~Ternary_tree();
+        Account *find(char* const);
+        void insert(char*, Account*);
+        void erase(char*);
 }
 class Bank{
     private:

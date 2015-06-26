@@ -7,26 +7,33 @@ Node *Node::find_child(char c)
         return nullptr;
     return (i->second);
 }
+Ternary_tree::Ternary_tree()
+{
+    root = new Node();
+}
+Ternary_tree::~Ternary_tree()
+{
+    // Free memory
+}
 Account *Ternary_tree::find(char* const ID)
 {
     Node *current = root;
-    char *current_char = ID;
-    while((*current_char) != '/0')
+    while((*ID) != '/0')
     {
-        current = current->find_child((*current_char));
+        char current_char = (*ID); 
+        current = current->find_child(current_char);
         if(current == nullptr)
             return nullptr;
-        current_char++;
+        ID++;
     }
     return current->current_account;
 }
-void Ternary_tree::insert(char *key, Account *new_account)
+void Ternary_tree::insert(char *ID, Account *new_account)
 {
     Node *current = root;
-    char *ID = key;
     while((*ID) != '/0')
     {
-        char current_char = *ID;
+        char current_char = (*ID);
         Node *child = current->find_child(current_char);
         if(child == nullptr)
         {
@@ -39,26 +46,23 @@ void Ternary_tree::insert(char *key, Account *new_account)
     }
     current.current_account = new_account;
 }
-void Ternary_tree::erase(char *key)
+void Ternary_tree::erase(char *ID)
 {
     Node *current = root;
-    char *ID = key;
     while((*ID) != '/0')
     {
         current = current->find_child((*ID));
         ID++;
     }
-    if(current->children_map.size() == 0)
-        delete current;
     current->current_account = nullptr;
 }
 bool Bank::existed(char* const ID)
 {
-    return (Account_trie.find(ID) != nullptr);
+    return (Account_ternary_tree.find(ID) != nullptr);
 }
 int Bank::login(char* const ID, const string &password)
 {
-    Account *i = Account_trie.find(ID);
+    Account *i = Account_ternary_tree.find(ID);
     string hash_password = md5(password);
     if(i == nullptr)
         return ID_NOT_FOUND;
@@ -72,13 +76,12 @@ int Bank::login(char* const ID, const string &password)
 }
 int Bank::create(char* const ID, const string &password)
 {
-    Account *i = Account_trie.find(ID);
+    Account *i = Account_ternary_tree.find(ID);
     if(i != Account_map.end())
         return ID_EXIST;
     else
     {
         Account *new_account = new Account(ID, md5(password), 0);
-        new_account->Account_history = new vector<History *>;
         char *key = new char[strlen(ID)+1];
         strcpy(key,ID);
         Account_ternary_tree.insert(key, new_account);
@@ -95,8 +98,7 @@ int Bank::deleting(char* const ID, const string &password)
         return WRONG_PS;
     else
     {
-        Account_ternary_tree.erase(i);
-        delete i->first;
+        Account_ternary_tree.erase(ID);
         return SUCCESS;
     }
 }
@@ -170,12 +172,12 @@ pair<int, int> Bank::withdraw(const int &money)
     if(last_login->money >= money)
     {
         last_login->money -= money;
-        std::pair<int, int> ans = std::make_pair(SUCCESS, (last_login->second).money);
+        std::pair<int, int> ans = std::make_pair(SUCCESS, last_login->money);
         return ans;
     }
     else
     {
-        std::pair<int, int>ans = std::make_pair(FAIL, (last_login->second).money);
+        std::pair<int, int>ans = std::make_pair(FAIL, last_login->money);
         return ans;
     }
 }
@@ -186,7 +188,7 @@ pair<int, int> Bank::transfer(char* const ID, const int &money)
     if(i == nullptr)
         ans = std::make_pair(ID_NOT_FOUND, 0);
     else if((last_login->second).money < money)
-        ans = std::make_pair(FAIL, (last_login->second).money);
+        ans = std::make_pair(FAIL, last_login->money);
     else
     {
         last_login->money -= money;
@@ -197,7 +199,7 @@ pair<int, int> Bank::transfer(char* const ID, const int &money)
         History *new_history = Transfer_history.at(Transfer_history.size() - 1);
         (last_login->second).Account_history->push_back(new_history);
         (i->second).Account_history->push_back(new_history);
-        ans = std::make_pair(SUCCESS, (last_login->second).money);
+        ans = std::make_pair(SUCCESS, last_login->money);
     }
     return ans;
 }
