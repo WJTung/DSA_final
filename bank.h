@@ -10,6 +10,7 @@
 #define FAIL -5
 #define NO_RECORD -6
 #define MAX_STRLEN 200
+#define LETTER_NUM 62
 using namespace std;
 struct History{
     char* give_ID;
@@ -46,23 +47,33 @@ struct Account{
 class Node{
     private:
         Account *current_account;
-        std::map<char, Node*> children_map;
+        Node* children[LETTER_NUM];
     public:
-        Node() { current_account = nullptr; }
-        Node(Account *account) { current_account = account; }
-        ~Node() {}
+        Node(Account *account = NULL){ 
+            current_account = account;
+            for(int i = 0;i < LETTER_NUM;i++)
+                children[i] = NULL;
+        }
+        ~Node(){
+            delete current_account;
+            for(int i = 0;i < LETTER_NUM;i++)
+                delete children[i];
+        }
 }
 class Trie{
     private:
         Node *root;
     public:
-        Trie();
-        ~Trie();
+        Trie(Node* r = NULL){
+            root = r;
+        }
+        ~Trie(){
+            delete root;
+        }
 }
 class Bank{
     private:
         Account *iterator;
-        std::map<char* const, Account, strCmp>::iterator mapIter;
         Trie Account_trie;
         std::vector<History*> Transfer_history;
         Account *last_login;
