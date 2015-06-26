@@ -1,27 +1,55 @@
 #include "md5.h"
 #include "bank.h"
-Node *Node::find_child(char c)
-{
-    std::map<char, Node*>::iterator i = children_map.find(c);
-    if(i == children_map.end())
-        return nullptr;
-    return (i->second);
+
+int char2Index(char c){
+    if(isdigit(c))
+        return c - '0';
+    else if(isupper(c))
+        return 10 + c - 'A';
+    else
+        return 36 + c - 'a';
 }
-Account *trie::find(char* const ID)
-{
-    Node *current = Account_trie.root;
+Node* Trie::findNode(char* const ID){                   //是否有此ID的trie節點(不一定有account)
+    Node *current = root;
     char *current_char = ID;
     while((*current_char) != '/0')
     {
-        current = current->find_child((*current_char));
-        if(current == nullptr)
+        Node* nxt = current->children[char2Index(current_char)];
+        if(nxt == nullptr)
             return nullptr;
+        else
+            current = nxt;
         current_char++;
     }
+    return current;
+}
+Account* Trie::find(char* const ID)
+{
+    Node* nowNode = findNode(ID);
+    if(nowNode == nullptr)
+        return nullptr;
+    else
+        return findNode(ID)->current_account;
+}
+Account* Trie::insert(char* const ID,string &hash_password,int money)       //ID_EXISTED : return nullptr
+{
+    Node* current = root;
+    char* current_char = *ID;
+    while((*current_char) != '/0')
+    {
+        Node* nxt = current->children[char2Index(current_char)];
+        if(nxt == nullptr){
+            nxt = new Node();
+        }
+        else
+            current = nxt;
+        current_char++;
+    }
+    if(current->current_account != nullptr)
+        return nullptr;
+    current->current_account = new Account(ID,hash_password,money);
     return current->current_account;
 }
-void trie::insert(char *key, Account *new_account)
-{
 
 bool Bank::existed(char* const ID)
 {
@@ -43,38 +71,32 @@ int Bank::login(char* const ID, const string &password)
 }
 int Bank::create(char* const ID, const string &password)
 {
-    Account *i = Account_trie.find(ID);
-    if(i != Account_map.end())
+    Account *i = Account_trie.insert(ID,md5(password),0);
+    if(i == nullptr)
         return ID_EXIST;
     else
-    {
-        Account *new_account = new (ID, md5(password), 0);
-        new_account->Account_history = new vector<History *>;
-        char *key = new char[strlen(ID)+1];
-        strcpy(key,ID);
-        Account_trie.insert(key, new_account);
         return SUCCESS;
-    }
 }
 int Bank::deleting(char* const ID, const string &password)
 {
-    Account *i = Account_trie.find(ID);
+    Node *i = Account_trie.findNode(ID);
     string hash_password = md5(password);
-    if(i == nullptr)
+    if(i == nullptr || i->current_account == nullptr)
         return ID_NOT_FOUND;
-    else if(hash_password != i->hash_password)
+    else if(hash_password != i->current_account->hash_password)
         return WRONG_PS;
     else
     {
-        Account_trie.erase(i);
-        delete i->first;
+        delete i->current_account;
+        i->current_account = nullptr;
         return SUCCESS;
     }
 }
 pair<int, int> Bank::merge(char* const ID1, const string &password1, char* const ID2, const string &password2)
 {
     Account *i1 = Account_trie.find(ID1);
-    Account *i2 = Account_trie.find(ID2);
+    Node* node_i2 = Account_trie.findNode(ID2);
+    Account *i2 = (node_i2 == nullptr)?nullptr:node_i2->current_account;
     string hash_password1 = md5(password1);
     string hash_password2 = md5(password2);
     std::pair<int, int> ans;
@@ -90,7 +112,7 @@ pair<int, int> Bank::merge(char* const ID1, const string &password1, char* const
     {
         int i, hi1=0, hi2=0;
         i1->money += i2->money;
-        int h1 = i1->.Account_history->size(); 
+        int h1 = i1->Account_history->size(); 
         int h2 = i2->Account_history->size(); 
         std::vector<History *> *new_Account_history = new vector<History *>;
         while(hi1 != h1 && hi2 != h2)
@@ -123,10 +145,11 @@ pair<int, int> Bank::merge(char* const ID1, const string &password1, char* const
             if(strcmp(i2->Account_history->at(i)->get_ID , ID2) == 0)
                 strcpy(i2->Account_history->at(i)->get_ID , ID1);
         }
-//        vector<History*>().swap((i1->second).Account_history);
-//        vector<History*>().swap((i2->second).Account_history);
-        (i1->second).Account_history = new_Account_history;
-        Account_trie.erase(i2);
+        delete i1->Account_history;
+        //delete i2->Account_history;
+        i1->Account_history = new_Account_history;
+        delete i2;
+        node_i2->current_account = nullptr;
         ans = std::make_pair (SUCCESS, (i1->second).money);
     }
     return ans;
@@ -141,12 +164,12 @@ pair<int, int> Bank::withdraw(const int &money)
     if(last_login->money >= money)
     {
         last_login->money -= money;
-        std::pair<int, int> ans = std::make_pair(SUCCESS, (last_login->second).money);
+        std::pair<int, int> ans = std::make_pair(SUCCESS, last_login -> money);
         return ans;
     }
     else
     {
-        std::pair<int, int> ans = std::make_pair(FAIL, (last_login->second).money);
+        std::pair<int, int> ans = std::make_pair(FAIL, last_login -> money);
         return ans;
     }
 }
@@ -156,19 +179,18 @@ pair<int, int> Bank::transfer(char* const ID, const int &money)
     std::pair<int, int> ans;
     if(i == nullptr)
         ans = std::make_pair(ID_NOT_FOUND, 0);
-    else if((last_login->second).money < money)
-        ans = std::make_pair(FAIL, (last_login->second).money);
+    else if(last_login -> money < money)
+        ans = std::make_pair(FAIL, (last_login -> money));
     else
     {
-        last_login->money -= money;
-        i->second.money  += money;
-        History *tmp = new History((last_login->first), ID, money, transferred_number);
-        Transfer_history.push_back(tmp);
+        last_login -> money -= money;
+        i -> money  += money;
+        History *new_history = new History((last_login -> ID), ID, money, transferred_number);
+        Transfer_history.push_back(new_history);
         transferred_number++;
-        History *new_history = Transfer_history.at(Transfer_history.size() - 1);
-        (last_login->second).Account_history->push_back(new_history);
-        (i->second).Account_history->push_back(new_history);
-        ans = std::make_pair(SUCCESS, (last_login->second).money);
+        last_login -> Account_history -> push_back(new_history);
+        i -> Account_history -> push_back(new_history);
+        ans = std::make_pair(SUCCESS, (last_login -> money));
     }
     return ans;
 }
@@ -194,11 +216,9 @@ void Bank::find_and_print(const char* const regexp)
 }
 int Bank::search_and_print(const char* const ID)
 {
-    vector<History *> *nowHistory = last_login->second.Account_history;
-    //cout<<"last_login_ID: "<<last_login->first<<' ';
+    vector<History *> *nowHistory = last_login->Account_history;
     bool noRecord = true;
     for(unsigned int i = 0;i < nowHistory->size();i++){
-        //cout<<"history "<<i<<": "<<(nowHistory->at(i)->give_ID)<<"\t to \t"<<(nowHistory->at(i)->get_ID)<<"\t, money\t"<<(nowHistory->at(i)->money);
         if(strcmp(nowHistory->at(i)->give_ID , ID) == 0){
             printf("From %s %d\n",ID,nowHistory->at(i)->money);
             noRecord = false;
@@ -213,16 +233,16 @@ int Bank::search_and_print(const char* const ID)
     return SUCCESS;
 }
 void Bank::setBeginIter(void){
-    mapIter = Account_map.begin();
+    trie_iter = Account_trie.root;
     return ;
 }
 bool Bank::isEndIter(void){
-    return mapIter == Account_map.end();
+    return trie_iter == nullptr;
 }
 void Bank::nextIter(void){
-    ++mapIter;
+    if(trie_iter)
     return ;
 }
 const Account* Bank::getIter(void){
-    return &(mapIter->second);
+    return trie_iter->current_account;
 }

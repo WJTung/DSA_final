@@ -36,35 +36,35 @@ struct Account{
     Account(const char* const id,string hash,int m = 0):hash_password(hash),money(m){
         ID = new char[strlen(id)+1];
         strcpy(ID,id);
+        Account_history = new std::vector<History*>;
     }
     Account(){
-        ID = NULL;
+        ID = nullptr;
     }
     ~Account(){
-        //delete ID;
+        delete ID;
+        delete Account_history;
     }
 };
-class Node{
-    private:
-        Account *current_account;
-        Node* children[LETTER_NUM];
-    public:
-        Node(Account *account = NULL){ 
-            current_account = account;
-            for(int i = 0;i < LETTER_NUM;i++)
-                children[i] = NULL;
-        }
-        ~Node(){
-            delete current_account;
-            for(int i = 0;i < LETTER_NUM;i++)
-                delete children[i];
-        }
-}
+struct Node{
+    Account *current_account;
+    Node* children[LETTER_NUM];
+    Node(Account *account = nullptr){ 
+        current_account = account;
+        for(int i = 0;i < LETTER_NUM;i++)
+            children[i] = nullptr;
+    }
+    ~Node(){
+        delete current_account;
+        for(int i = 0;i < LETTER_NUM;i++)
+            delete children[i];
+    }
+};
 class Trie{
     private:
         Node *root;
     public:
-        Trie(Node* r = NULL){
+        Trie(Node* r = nullptr){
             root = r;
         }
         ~Trie(){
@@ -73,7 +73,7 @@ class Trie{
 }
 class Bank{
     private:
-        Account *iterator;
+        Node* trie_iter;
         Trie Account_trie;
         std::vector<History*> Transfer_history;
         Account *last_login;
