@@ -29,34 +29,29 @@ Account* Trie::find(char const * ID)
     if(nowNode == nullptr)
         return nullptr;
     else
-        return findNode(ID)->current_account;
+        return nowNode->current_account;
 }
-Account* Trie::insert(char const * ID,string hash_password,int money)       //ID_EXISTED : return nullptr
+bool Trie::insert(char const * ID,string hash_password,int money)       //false: ID_EXISTED
 {
     Node* current = root;
     char const * current_char = ID;
+#define nxt current->children[char2Index(*current_char)]
     while((*current_char) != '\0')
     {
-        Node* nxt = current->children[char2Index(*current_char)];
         if(nxt == nullptr){
-            nxt = current->children[char2Index(*current_char)] = new Node(nullptr,current);
+            nxt = new Node(nullptr,current);
+            (current->num_children)++;
         }
         current = nxt;
         current_char++;
     }
-    if(current->current_account != nullptr)
-        return nullptr;
-    else
-    {
-        Node* prev = current -> parent;
-        while(prev != nullptr)
-        {
-            prev -> num_children++;
-            prev = prev -> parent;
-        }
+#undef nxt
+    if(current->current_account == nullptr){
+        current->current_account = new Account(ID,hash_password,money);
+        return true;
     }
-    current->current_account = new Account(ID,hash_password,money);
-    return current->current_account;
+    else
+        return false;
 }
 
 bool Bank::existed(char* const ID)
@@ -79,11 +74,10 @@ int Bank::login(char* const ID, const string &password)
 }
 int Bank::create(char const * ID, const string &password)
 {
-    Account *i = Account_trie.insert(ID,md5(password),0);
-    if(i == nullptr)
-        return ID_EXIST;
-    else
+    if(Account_trie.insert(ID,md5(password),0))
         return SUCCESS;
+    else
+        return ID_EXIST;
 }
 int Bank::deleting(char const * ID, const string &password)
 {

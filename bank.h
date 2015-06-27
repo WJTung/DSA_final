@@ -82,7 +82,7 @@ class Trie{
         }
         Node* findNode(char const *);
         Account* find(char const *);
-        Account* insert(char const *,string,int);
+        bool insert(char const *,string,int);
 };
 class Bank{
     private:
