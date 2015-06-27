@@ -2,9 +2,9 @@
 #include "bank.h"
 
 int char2Index(char c){
-    if(isdigit(c))
+    if(c <= '9')
         return c - '0';
-    else if(isupper(c))
+    else if(c <= 'Z')
         return 10 + c - 'A';
     else
         return 36 + c - 'a';
@@ -93,7 +93,7 @@ int Bank::deleting(char const * ID, const string &password)
         delete current->current_account;
         current->current_account = nullptr;
         ID += strlen(ID) - 1;
-        while (prev != nullptr && current -> num_children == 0 && current -> current_account == nullptr){
+        while (prev != nullptr && current->num_children == 0 && current->current_account == nullptr){ //prev != nullptr: not root
             delete current;
             prev -> num_children--;
             prev -> children[char2Index(*ID)] = nullptr;

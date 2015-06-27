@@ -18,6 +18,8 @@ bank.o: bank.cpp bank.h md5.h
 	g++ $(CPPFLAGS) $< -c -o $@
 find_similar_strings.o: find_similar_strings.cpp bank.h
 	g++ $(CPPFLAGS) $< -c -o $@
+match_trie.o: match_trie.cpp bank.h
+	g++ $(CPPFLAGS) $< -c -o $@
 
 clean:
 	rm -f *.o final_project
