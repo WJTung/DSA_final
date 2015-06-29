@@ -29,12 +29,13 @@ int Bank::create(const char *ID, const string &password)
     {
         Account *new_account = new Account(ID, md5(password), 0);
         new_account->Account_history = new vector<History *>;
-        new_account->create_order = create_num;
         char *key = new char[strlen(ID)+1];
         strcpy(key,ID);
         Account_map[key] = new_account;
-        Account_vector.push_back(new_account);
-        create_num++;
+        Account_list.push_back(new_account);
+        std::list<Account *>::iterator last = Account_list.end();
+        --last;
+        new_account->Account_i = last;
         return SUCCESS;
     }
 }
@@ -48,7 +49,7 @@ int Bank::deleting(const char *ID, const string &password)
         return WRONG_PS;
     else
     {
-        Account_vector[(i->second)->create_order] = nullptr;
+        Account_list.erase((i->second)->Account_i);
         Account_map.erase(i);
         return SUCCESS;
     }
@@ -106,7 +107,7 @@ pair<int, int> Bank::merge(const char *ID1, const string &password1, const char 
                 strcpy((i2->second)->Account_history->at(i)->get_ID , ID1);
         }
         (i1->second)->Account_history = new_Account_history;
-        Account_vector[(i2->second)->create_order] = nullptr;
+        Account_list.erase((i2->second)->Account_i);
         Account_map.erase(i2);
         ans = std::make_pair (SUCCESS, (i1->second)->money);
     }
@@ -160,15 +161,12 @@ bool str_cmp(const char *a, const char *b)
 void Bank::find_and_print(const char *regexp)
 {
     std::vector<const char *> match_ID;
-    int i;
-    for(i = 0; i < create_num; i++)
+    std::list<Account *>::iterator i;
+    for(i = Account_list.begin(); i != Account_list.end(); ++i)
     {
-        if(Account_vector[i] != nullptr)
-        {
-            const char *ID = Account_vector[i]->ID;
-            if(match(regexp, ID))
-                match_ID.push_back(ID);
-        }
+        const char *ID = (*i)->ID;
+        if(match(regexp, ID))
+            match_ID.push_back(ID);
     }
     int ID_num = match_ID.size(); 
     if(ID_num != 0)
@@ -199,11 +197,15 @@ int Bank::search_and_print(const char *ID)
         return NO_RECORD;
     return SUCCESS;
 }
-int Bank::get_size()
+std::list<Account *>::iterator Bank::get_begin()
 {
-    return create_num;
+    return Account_list.begin();
 }
-Account *Bank::get_element(int i)
+std::list<Account *>::iterator Bank::get_end()
 {
-    return Account_vector[i];
+    return Account_list.end();
+}
+Account *Bank::get_element(std::list<Account *>::iterator i)
+{
+    return (*i);
 }

@@ -189,21 +189,17 @@ void findCreatedID(const char *origin,int needNum,Bank &bank){    //窮舉已存
     char *IDs[needNum];
     int scores[needNum];
     int num = 0;
-    int i;
-    int size = bank.get_size();
-    for(i = 0; i < size; i++){
-        if(bank.get_element(i) != nullptr)
-        {
-            char *nowString = bank.get_element(i)->ID;
-            int nowScore = getScore(origin,nowString);
-            //printf("%s---*",nowString);
-            if(num < needNum){
-                insertion(num,IDs,scores,nowString,nowScore);
-                num++;
-            }
-            else if(scores[num-1] > nowScore || (scores[num-1] == nowScore && strcmp(IDs[num-1] , nowString) > 0)){
-                insertion(num-1,IDs,scores,nowString,nowScore);
-            }
+    std::list<Account *>::iterator i;
+    for(i = bank.get_begin(); i != bank.get_end(); ++i){
+        char *nowString = bank.get_element(i)->ID;
+        int nowScore = getScore(origin,nowString);
+        //printf("%s---*",nowString);
+        if(num < needNum){
+            insertion(num,IDs,scores,nowString,nowScore);
+            num++;
+        }
+        else if(scores[num-1] > nowScore || (scores[num-1] == nowScore && strcmp(IDs[num-1] , nowString) > 0)){
+            insertion(num-1,IDs,scores,nowString,nowScore);
         }
     }
     for(int i = 0;i < num;i++){

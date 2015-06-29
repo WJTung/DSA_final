@@ -4,6 +4,7 @@
 #include <string.h>
 #include <unordered_map>
 #include <algorithm>
+#include <list>
 #include "MurmurHash3.h"
 #define ID_NOT_FOUND -1
 #define WRONG_PS -2
@@ -35,7 +36,7 @@ struct Account{
     string hash_password; 
     int money;
     std::vector<History *> *Account_history;
-    int create_order;
+    std::list<Account *>::iterator Account_i;
     Account(const char *id,string hash,int m = 0):hash_password(hash),money(m){
         ID = new char[strlen(id)+1];
         strcpy(ID,id);
@@ -68,7 +69,7 @@ class Bank{
         std::vector<History*> Transfer_history;
         std::unordered_map<const char *, Account *, str_hash, str_equal>::iterator last_login;
         int transferred_number;
-        std::vector<Account *> Account_vector;
+        std::list<Account *> Account_list;
         int create_num;
     public:
         Bank(){transferred_number = 0, Account_map.reserve(Map_Size), create_num = 0;}
@@ -82,8 +83,9 @@ class Bank{
         pair<int, int> transfer(const char *, const int&);
         void find_and_print(const char *);
         int search_and_print(const char *);
-        int get_size();
-        Account *get_element(int);
+        std::list<Account *>::iterator get_begin();
+        std::list<Account *>::iterator get_end();
+        Account *get_element(std::list<Account *>::iterator);
 };
 void findUncreatedID(const char *, int, Bank&);
 void findCreatedID(const char *, int, Bank&);
