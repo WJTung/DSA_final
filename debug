@@ -9,7 +9,7 @@ total_line=`grep -c ".*" $file_in`
 #make sure binary is up-to-date
 make
 #run and compare
-cat $file_in | ./final_project > $program_out
+time `cat $file_in | ./final_project > $program_out`
 processed_line=`grep -c ".*" $program_out`
 diff $file_out $program_out > $compare_out
 diff_line=`head -n 1 $compare_out | awk -F [,c] '{print $1}'`
