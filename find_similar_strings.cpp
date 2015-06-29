@@ -9,7 +9,6 @@ using namespace std;
 #define sum1toN(n) ((n)*(n+1)/2)
 #define ABS(x) ((x>0)?x:-(x))
 
-map<string,bool> account;
 char word[] = {"0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"};   //帳號可能會出現的字元
 
 int findMinLen(int len,int score){                      //在差值=score下，字串最短可能長度
@@ -80,7 +79,7 @@ int printAllPostfix(int originLen,char *now,int score,int needed,Bank &bank){
     return finded;
 }
 //output 同score字串，字典序由小到大
-int printSameScoreString(const char* const origin,int originLen,char *now,int nowIdx,
+int printSameScoreString(const char *origin,int originLen,char *now,int nowIdx,
                          int score,int needed,int changeNum,Bank &bank){
     int finded = 0;
     if(nowIdx == originLen){            //超過原長，如果某長度可以符合score，直接字典序輸出
@@ -150,7 +149,7 @@ int printSameScoreString(const char* const origin,int originLen,char *now,int no
     return finded;
 }
 /////////////////////////////////find uncreated ID main function//////////////////////////////////
-void findUncreatedID(const char* const origin,int needNum,Bank &bank){      //窮舉所有可能score,find uncreated ID
+void findUncreatedID(const char *origin,int needNum,Bank &bank){      //窮舉所有可能score,find uncreated ID
     int finded = 0;
     int originLen = strlen(origin);
     char *now = new char[MAX_STRLEN];
@@ -165,7 +164,7 @@ void findUncreatedID(const char* const origin,int needNum,Bank &bank){      //�
 
 ////////////////////////////////////////find created ID////////////////////////////////////////
 ///////////////////////////////////////////////////////////////////////////////////////////////
-int getScore(const char* const sa,const char* const sb){
+int getScore(const char *sa,const char *sb){
     int na = strlen(sa),nb = strlen(sb);
     int score = sum1toN(ABS(na-nb));
     int minLen = min(na,nb);
@@ -186,7 +185,7 @@ void insertion(int idx,char *IDs[],int *scores,char *nowString,int nowScore){
     return ;
 }
 ////////////////////////////////find created ID main function//////////////////////////////////////////
-void findCreatedID(const char* const origin,int needNum,Bank &bank){    //窮舉已存在帳號,找出score最小ID needNum個
+void findCreatedID(const char *origin,int needNum,Bank &bank){    //窮舉已存在帳號,找出score最小ID needNum個
     char *IDs[needNum];
     int scores[needNum];
     int num = 0;
