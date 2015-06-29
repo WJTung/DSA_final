@@ -338,6 +338,5 @@ int murmur(const char * key)
     unsigned int seed = 27773;
     unsigned int * hash = new unsigned int;
     MurmurHash3_x86_32(key, length, seed, hash);
-    (*hash) %= 88327;
     return static_cast<int>(*hash);
 }

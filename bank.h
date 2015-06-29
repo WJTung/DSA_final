@@ -35,6 +35,7 @@ struct Account{
     string hash_password; 
     int money;
     std::vector<History *> *Account_history;
+    int create_order;
     Account(const char *id,string hash,int m = 0):hash_password(hash),money(m){
         ID = new char[strlen(id)+1];
         strcpy(ID,id);
@@ -63,13 +64,14 @@ struct str_hash
 class Bank{
     private:
         Account *iterator;
-        std::unordered_map<const char *, Account, str_hash, str_equal>::iterator mapIter;
-        std::unordered_map<const char *, Account, str_hash, str_equal> Account_map;
+        std::unordered_map<const char *, Account *, str_hash, str_equal> Account_map;
         std::vector<History*> Transfer_history;
-        std::unordered_map<const char *, Account, str_hash, str_equal>::iterator last_login;
+        std::unordered_map<const char *, Account *, str_hash, str_equal>::iterator last_login;
         int transferred_number;
+        std::vector<Account *> Account_vector;
+        int create_num;
     public:
-        Bank(){transferred_number = 0, Account_map.reserve(Map_Size);}
+        Bank(){transferred_number = 0, Account_map.reserve(Map_Size), create_num = 0;}
         bool existed(const char *);
         int login(const char *, const string&);
         int create(const char *, const string&);
@@ -80,10 +82,8 @@ class Bank{
         pair<int, int> transfer(const char *, const int&);
         void find_and_print(const char *);
         int search_and_print(const char *);
-        void setBeginIter(void);
-        bool isEndIter(void);
-        void nextIter(void);
-        const Account* getIter(void);
+        int get_size();
+        Account *get_element(int);
 };
 void findUncreatedID(const char *, int, Bank&);
 void findCreatedID(const char *, int, Bank&);

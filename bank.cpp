@@ -3,16 +3,16 @@
 #include <stdio.h>
 bool Bank::existed(const char *ID)
 {
-    std::unordered_map<const char *, Account, str_hash, str_equal>::iterator i = Account_map.find(ID);
+    std::unordered_map<const char *, Account *, str_hash, str_equal>::iterator i = Account_map.find(ID);
     return (i != Account_map.end());
 }
 int Bank::login(const char *ID, const string &password)
 {
-    std::unordered_map<const char *, Account, str_hash, str_equal>::iterator i = Account_map.find(ID);
+    std::unordered_map<const char *, Account *, str_hash, str_equal>::iterator i = Account_map.find(ID);
     string hash_password = md5(password);
     if(i == Account_map.end())
         return ID_NOT_FOUND;
-    else if(hash_password != (i->second).hash_password)
+    else if(hash_password != (i->second)->hash_password)
         return WRONG_PS;
     else
     {
@@ -22,39 +22,41 @@ int Bank::login(const char *ID, const string &password)
 }
 int Bank::create(const char *ID, const string &password)
 {
-    std::unordered_map<const char *, Account, str_hash, str_equal>::iterator i = Account_map.find(ID);
-    //printf("%s\n",i->second);
+    std::unordered_map<const char *, Account *, str_hash, str_equal>::iterator i = Account_map.find(ID);
     if(i != Account_map.end())
         return ID_EXIST;
     else
     {
-        Account new_account(ID, md5(password), 0);
-        new_account.Account_history = new vector<History *>;
+        Account *new_account = new Account(ID, md5(password), 0);
+        new_account->Account_history = new vector<History *>;
+        new_account->create_order = create_num;
         char *key = new char[strlen(ID)+1];
         strcpy(key,ID);
         Account_map[key] = new_account;
+        Account_vector.push_back(new_account);
+        create_num++;
         return SUCCESS;
     }
 }
 int Bank::deleting(const char *ID, const string &password)
 {
-    std::unordered_map<const char *, Account, str_hash, str_equal>::iterator i = Account_map.find(ID);
+    std::unordered_map<const char *, Account *, str_hash, str_equal>::iterator i = Account_map.find(ID);
     string hash_password = md5(password);
     if(i == Account_map.end())
         return ID_NOT_FOUND;
-    else if(hash_password != (i->second).hash_password)
+    else if(hash_password != (i->second)->hash_password)
         return WRONG_PS;
     else
     {
+        Account_vector[(i->second)->create_order] = nullptr;
         Account_map.erase(i);
-        delete i->first;
         return SUCCESS;
     }
 }
 pair<int, int> Bank::merge(const char *ID1, const string &password1, const char *ID2, const string &password2)
 {
-    std::unordered_map<const char *, Account, str_hash, str_equal>::iterator i1 = Account_map.find(ID1);
-    std::unordered_map<const char *, Account, str_hash, str_equal>::iterator i2 = Account_map.find(ID2);
+    std::unordered_map<const char *, Account *, str_hash, str_equal>::iterator i1 = Account_map.find(ID1);
+    std::unordered_map<const char *, Account *, str_hash, str_equal>::iterator i2 = Account_map.find(ID2);
     string hash_password1 = md5(password1);
     string hash_password2 = md5(password2);
     std::pair<int, int> ans;
@@ -62,91 +64,92 @@ pair<int, int> Bank::merge(const char *ID1, const string &password1, const char 
         ans = std::make_pair (ID_NOT_FOUND, 0);
     else if(i2 == Account_map.end())
         ans = std::make_pair (SUCCESS, ID_NOT_FOUND);
-    else if(hash_password1 != (i1->second).hash_password)
+    else if(hash_password1 != (i1->second)->hash_password)
         ans = std::make_pair (WRONG_PS, 0);
-    else if(hash_password2 != (i2->second).hash_password)
+    else if(hash_password2 != (i2->second)->hash_password)
         ans = std::make_pair (SUCCESS, WRONG_PS);
     else
     {
         int i, hi1=0, hi2=0;
-        (i1->second).money += (i2->second).money;
-        int h1 = (i1->second).Account_history->size(); 
-        int h2 = (i2->second).Account_history->size(); 
+        (i1->second)->money += (i2->second)->money;
+        int h1 = (i1->second)->Account_history->size(); 
+        int h2 = (i2->second)->Account_history->size(); 
         std::vector<History *> *new_Account_history = new vector<History *>;
         while(hi1 != h1 && hi2 != h2)
         {
-            if((i1->second).Account_history->at(hi1)->transfer_time <= (i2->second).Account_history->at(hi2)->transfer_time)
+            if((i1->second)->Account_history->at(hi1)->transfer_time <= (i2->second)->Account_history->at(hi2)->transfer_time)
             {
-                new_Account_history->push_back((i1->second).Account_history->at(hi1));
+                new_Account_history->push_back((i1->second)->Account_history->at(hi1));
                 hi1++;
             }
             else
             {
-                new_Account_history->push_back((i2->second).Account_history->at(hi2));
+                new_Account_history->push_back((i2->second)->Account_history->at(hi2));
                 hi2++;
             }
         }
         while(hi1 != h1)
         {
-            new_Account_history->push_back((i1->second).Account_history->at(hi1));
+            new_Account_history->push_back((i1->second)->Account_history->at(hi1));
             hi1++;
         }
         while(hi2 != h2)
         {
-            new_Account_history->push_back((i2->second).Account_history->at(hi2));
+            new_Account_history->push_back((i2->second)->Account_history->at(hi2));
             hi2++;
         }
         for(i = 0; i < h2; i++)
         {
-            if(strcmp((i2->second).Account_history->at(i)->give_ID , ID2) == 0)
-                strcpy((i2->second).Account_history->at(i)->give_ID , ID1);
-            if(strcmp((i2->second).Account_history->at(i)->get_ID , ID2) == 0)
-                strcpy((i2->second).Account_history->at(i)->get_ID , ID1);
+            if(strcmp((i2->second)->Account_history->at(i)->give_ID , ID2) == 0)
+                strcpy((i2->second)->Account_history->at(i)->give_ID , ID1);
+            if(strcmp((i2->second)->Account_history->at(i)->get_ID , ID2) == 0)
+                strcpy((i2->second)->Account_history->at(i)->get_ID , ID1);
         }
-        (i1->second).Account_history = new_Account_history;
+        (i1->second)->Account_history = new_Account_history;
+        Account_vector[(i2->second)->create_order] = nullptr;
         Account_map.erase(i2);
-        ans = std::make_pair (SUCCESS, (i1->second).money);
+        ans = std::make_pair (SUCCESS, (i1->second)->money);
     }
     return ans;
 }
 int Bank::deposit(const int &money)
 {
-    (last_login->second).money += money;
-    return (last_login->second).money ;
+    (last_login->second)->money += money;
+    return (last_login->second)->money ;
 }
 pair<int, int> Bank::withdraw(const int &money)
 {
-    if((last_login->second).money >= money)
+    if((last_login->second)->money >= money)
     {
-        (last_login->second).money -= money;
-        std::pair<int, int> ans = std::make_pair(SUCCESS, (last_login->second).money);
+        (last_login->second)->money -= money;
+        std::pair<int, int> ans = std::make_pair(SUCCESS, (last_login->second)->money);
         return ans;
     }
     else
     {
-        std::pair<int, int> ans = std::make_pair(FAIL, (last_login->second).money);
+        std::pair<int, int> ans = std::make_pair(FAIL, (last_login->second)->money);
         return ans;
     }
 }
 pair<int, int> Bank::transfer(const char *ID, const int &money)
 {
-    std::unordered_map<const char *, Account, str_hash, str_equal>::iterator i = Account_map.find(ID);
+    std::unordered_map<const char *, Account *, str_hash, str_equal>::iterator i = Account_map.find(ID);
     std::pair<int, int> ans;
     if(i == Account_map.end())
         ans = std::make_pair(ID_NOT_FOUND, 0);
-    else if((last_login->second).money < money)
-        ans = std::make_pair(FAIL, (last_login->second).money);
+    else if((last_login->second)->money < money)
+        ans = std::make_pair(FAIL, (last_login->second)->money);
     else
     {
-        (last_login->second).money -= money;
-        (i->second).money  += money;
+        (last_login->second)->money -= money;
+        (i->second)->money  += money;
         History *tmp = new History((last_login->first), ID, money, transferred_number);
         Transfer_history.push_back(tmp);
         transferred_number++;
         History *new_history = Transfer_history.at(Transfer_history.size() - 1);
-        (last_login->second).Account_history->push_back(new_history);
-        (i->second).Account_history->push_back(new_history);
-        ans = std::make_pair(SUCCESS, (last_login->second).money);
+        (last_login->second)->Account_history->push_back(new_history);
+        (i->second)->Account_history->push_back(new_history);
+        ans = std::make_pair(SUCCESS, (last_login->second)->money);
     }
     return ans;
 }
@@ -156,13 +159,16 @@ bool str_cmp(const char *a, const char *b)
 }
 void Bank::find_and_print(const char *regexp)
 {
-    std::unordered_map<const char *, Account, str_hash, str_equal>::iterator i;
     std::vector<const char *> match_ID;
-    for(i = Account_map.begin(); i != Account_map.end(); ++i)
+    int i;
+    for(i = 0; i < create_num; i++)
     {
-        const char *ID = i->first;
-        if(match(regexp, ID))
-            match_ID.push_back(ID);
+        if(Account_vector[i] != nullptr)
+        {
+            const char *ID = Account_vector[i]->ID;
+            if(match(regexp, ID))
+                match_ID.push_back(ID);
+        }
     }
     int ID_num = match_ID.size(); 
     if(ID_num != 0)
@@ -177,11 +183,9 @@ void Bank::find_and_print(const char *regexp)
 }
 int Bank::search_and_print(const char *ID)
 {
-    vector<History *> *nowHistory = last_login->second.Account_history;
-    //cout<<"last_login_ID: "<<last_login->first<<' ';
+    vector<History *> *nowHistory = last_login->second->Account_history;
     bool noRecord = true;
     for(unsigned int i = 0;i < nowHistory->size();i++){
-        //cout<<"history "<<i<<": "<<(nowHistory->at(i)->give_ID)<<"\t to \t"<<(nowHistory->at(i)->get_ID)<<"\t, money\t"<<(nowHistory->at(i)->money);
         if(strcmp(nowHistory->at(i)->give_ID , ID) == 0){
             printf("From %s %d\n",ID,nowHistory->at(i)->money);
             noRecord = false;
@@ -195,17 +199,11 @@ int Bank::search_and_print(const char *ID)
         return NO_RECORD;
     return SUCCESS;
 }
-void Bank::setBeginIter(void){
-    mapIter = Account_map.begin();
-    return ;
+int Bank::get_size()
+{
+    return create_num;
 }
-bool Bank::isEndIter(void){
-    return mapIter == Account_map.end();
-}
-void Bank::nextIter(void){
-    ++mapIter;
-    return ;
-}
-const Account* Bank::getIter(void){
-    return &(mapIter->second);
+Account *Bank::get_element(int i)
+{
+    return Account_vector[i];
 }
