@@ -4,6 +4,7 @@
 #include <string.h>
 #include <unordered_map>
 #include <algorithm>
+#include "MurmurHash3.h"
 #define ID_NOT_FOUND -1
 #define WRONG_PS -2
 #define SUCCESS -3
@@ -11,7 +12,7 @@
 #define FAIL -5
 #define NO_RECORD -6
 #define MAX_STRLEN 200
-#define Map_Size 100000
+#define Map_Size 200000
 using namespace std;
 struct History{
     char* give_ID;
@@ -56,7 +57,7 @@ struct str_hash
 {
     size_t operator() (const char *str) const
     {
-        return std::hash<std::string>()(str);
+        return murmur(str);
     }
 };
 class Bank{
