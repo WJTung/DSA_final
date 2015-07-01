@@ -50,6 +50,8 @@ int Bank::deleting(const char *ID, const string &password)
     else
     {
         Account_list.erase((i->second)->Account_i);
+        delete (i->first);
+        delete (i->second);
         Account_map.erase(i);
         return SUCCESS;
     }
@@ -108,6 +110,8 @@ pair<int, int> Bank::merge(const char *ID1, const string &password1, const char 
         }
         (i1->second)->Account_history = new_Account_history;
         Account_list.erase((i2->second)->Account_i);
+        delete (i2->first);
+        delete (i2->second);
         Account_map.erase(i2);
         ans = std::make_pair (SUCCESS, (i1->second)->money);
     }
