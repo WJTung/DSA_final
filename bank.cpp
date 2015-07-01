@@ -49,6 +49,8 @@ int Bank::deleting(const char *ID, const string &password)
     else
     {
         Account_vector[(i->second)->create_order] = nullptr;
+        delete (i->first);
+        delete (i->second);
         Account_map.erase(i);
         return SUCCESS;
     }
