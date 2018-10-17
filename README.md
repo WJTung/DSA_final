@@ -11,4 +11,4 @@ This project simulates the requirements for a bank account management system. We
 + *merge* : merge two accounts into one
 + *search* : search the history of transfer
 
-We used the pointer of the *struct History* to store the transferring history in an account so that the history can be modified simultaneously in both accounts when a *merge* operation is processed. We tried *map*, *hash table (unordered_map)*, *trie*, *ternary tree* for storing accounts.
+We used the pointer of the *struct History* to store the transferring history in an account so that the history can be modified simultaneously in both accounts when a *merge* operation is processed. We tried *map*, *hash table (unordered_map)*, *trie*, *ternary tree* for storing accounts. We ranked number one among more than fifty teams in the judge system before the final rejudgement. Please refer to *report.pdf* for more details.
